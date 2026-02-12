@@ -6,7 +6,7 @@ set -euo pipefail
 # =============================
 
 SYSTEM_ROOT="/etc/nixos"
-REPO_ROOT="/home/michal/test-sterile"
+REPO_ROOT="/etc/nixos"
 HOST="$(hostname)"
 
 # ---------- FLAGS ----------
@@ -176,8 +176,24 @@ if [[ "$MODE" == "commit" && "$DRY" -eq 0 ]]; then
 
   (
     cd "$REPO_ROOT"
+
+    echo
+    echo "🔍 Aktualny stan repo:"
+    git status
+    echo
+
+    read -r -p "Dodać wszystkie zmiany do staging? (t/N): " ADDALL
+    ADDALL="${ADDALL:-N}"
+
+    if [[ "$ADDALL" == "t" || "$ADDALL" == "T" ]]; then
+      git add -A || fail "git add failed"
+      ok "Zmiany dodane do staging"
+    else
+      fail "Przerwano — brak staging"
+    fi
+
     if git diff --cached --quiet; then
-      fail "Brak zmian w staging. Użyj ręcznie: ga"
+      fail "Brak zmian do commita"
     fi
 
     read -r -p "Commit message: " MSG

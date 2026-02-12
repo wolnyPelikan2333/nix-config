@@ -1,0 +1,200 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# =============================
+# NSS SAFE — TRYB DECYZYJNY
+# =============================
+
+SYSTEM_ROOT="/etc/nixos"
+REPO_ROOT="/home/michal/test-sterile"
+HOST="$(hostname)"
+
+# ---------- FLAGS ----------
+DRY=0
+PANIC=0
+
+for arg in "$@"; do
+  case "$arg" in
+  --dry) DRY=1 ;;
+  --panic) PANIC=1 ;;
+  esac
+done
+
+# ---------- COLORS ----------
+RED="\033[31m"
+YELLOW="\033[33m"
+GREEN="\033[32m"
+RESET="\033[0m"
+
+fail() {
+  echo -e "${RED}❌ $1${RESET}"
+  exit 1
+}
+warn() { echo -e "${YELLOW}⚠️  $1${RESET}"; }
+ok() { echo -e "${GREEN}✅ $1${RESET}"; }
+
+header() {
+  echo
+  echo "=============================="
+  echo "🛡  NSS — TRYB DECYZYJNY"
+  echo "=============================="
+  echo
+}
+
+# ---------- HEADER ----------
+header
+
+# ---------- PANIC ----------
+if [[ "$PANIC" -eq 1 ]]; then
+  echo "🧯 PANIC MODE: rollback"
+  sudo nixos-rebuild switch --rollback || fail "Rollback failed"
+  ok "Rollback OK"
+  exit 0
+fi
+
+[[ "$DRY" -eq 1 ]] && warn "DRY RUN: brak zmian w systemie"
+
+# ---------- SANITY ----------
+[[ -d "$SYSTEM_ROOT" ]] || fail "SYSTEM_ROOT nie istnieje"
+[[ -d "$REPO_ROOT/.git" ]] || fail "REPO_ROOT nie jest repozytorium git"
+
+# ---------- REPO INFO ----------
+echo "📦 Repo: $REPO_ROOT"
+echo "────────────────────────"
+(
+  cd "$REPO_ROOT"
+  git status --short || true
+)
+echo "────────────────────────"
+
+# ---------- MENU (DECISION FIRST) ----------
+
+echo "Co chcesz zrobić?"
+echo
+echo "[N] NIC nie zmieniać w systemie"
+echo "[S] ZMIENIĆ system (switch)"
+echo
+echo "[D] abort (domyślne)"
+echo
+
+read -r -p "Wybór: " DECISION
+DECISION="${DECISION:-D}"
+
+case "$DECISION" in
+N | n)
+  echo
+  echo "Tryby BEZ ZMIAN w systemie:"
+  echo
+  echo "[A] build (sprawdź, czy się buduje)"
+  echo "[V] build-vm (test w maszynie wirtualnej)"
+  echo
+  echo "[D] abort (domyślne)"
+  echo
+
+  read -r -p "Wybór: " CHOICE
+  CHOICE="${CHOICE:-D}"
+
+  case "$CHOICE" in
+  A | a) MODE="build" ;;
+  V | v) MODE="vm" ;;
+  *) fail "Abort by user" ;;
+  esac
+  ;;
+S | s)
+  echo
+  echo "Tryby ZMIENIAJĄCE system:"
+  echo
+  echo "[B] build + switch"
+  echo "[C] build + switch + commit + push (wymaga: ga)"
+  echo
+  echo "[D] abort (domyślne)"
+  echo
+
+  read -r -p "Wybór: " CHOICE
+  CHOICE="${CHOICE:-D}"
+
+  case "$CHOICE" in
+  B | b) MODE="switch" ;;
+  C | c) MODE="commit" ;;
+  *) fail "Abort by user" ;;
+  esac
+  ;;
+*)
+  fail "Abort by user"
+  ;;
+esac
+
+ok "Wybrany tryb: $MODE"
+# ---------- BUILD ----------
+echo
+echo "🏗  BUILD: nix build (system)"
+if [[ "$DRY" -eq 1 ]]; then
+  warn "DRY: pomijam build"
+else
+  nix build "$SYSTEM_ROOT#nixosConfigurations.$HOST.config.system.build.toplevel" ||
+    fail "Build failed"
+  ok "Build OK"
+fi
+
+# ---------- BUILD-VM ----------
+if [[ "$MODE" == "vm" ]]; then
+  echo
+  echo "🖥  BUILD-VM: nixos-rebuild build-vm"
+
+  if [[ "$DRY" -eq 1 ]]; then
+    warn "DRY: pomijam build-vm"
+  else
+    nixos-rebuild build-vm --flake "$SYSTEM_ROOT#$HOST" ||
+      fail "Build-VM failed"
+
+    ok "Build-VM OK"
+    echo
+    echo "Uruchom VM poleceniem:"
+    echo "  ./result/bin/run-*-vm"
+  fi
+
+  exit 0
+fi
+
+# ---------- SWITCH ----------
+if [[ "$MODE" == "switch" || "$MODE" == "commit" ]]; then
+  echo
+  echo "🔁 SWITCH: nixos-rebuild switch"
+  if [[ "$DRY" -eq 1 ]]; then
+    warn "DRY: pomijam switch"
+  else
+    sudo nixos-rebuild switch --flake "$SYSTEM_ROOT#$HOST" ||
+      fail "Switch failed"
+    ok "Switch OK"
+  fi
+fi
+
+# ---------- COMMIT ----------
+if [[ "$MODE" == "commit" && "$DRY" -eq 0 ]]; then
+  echo
+  echo "📦 COMMIT CHECK"
+
+  (
+    cd "$REPO_ROOT"
+    if git diff --cached --quiet; then
+      fail "Brak zmian w staging. Użyj ręcznie: ga"
+    fi
+
+    read -r -p "Commit message: " MSG
+    [[ -z "$MSG" ]] && fail "Commit message pusta"
+
+    git commit -m "$MSG" || fail "Commit failed"
+    git push || fail "Push failed"
+  )
+
+  ok "Commit + push OK"
+fi
+
+# ---------- FINAL SAFETY ----------
+echo
+read -r -p "Kontynuować? (wpisz 'zamykamy' aby przerwać): " LAST
+if [[ "$LAST" == "zamykamy" ]]; then
+  fail "Przerwano hasłem awaryjnym"
+fi
+
+ok "NSS zakończony pomyślnie"

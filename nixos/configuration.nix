@@ -210,6 +210,7 @@
     blender
     bitwarden
     davinci-resolve
+    ollama
   ];
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;

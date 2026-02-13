@@ -211,6 +211,7 @@
     bitwarden
     davinci-resolve
     ollama
+    python3
   ];
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;

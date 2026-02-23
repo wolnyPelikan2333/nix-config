@@ -230,6 +230,7 @@
     davinci-resolve
     ollama
     python3
+    system-config-printer
   ];
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;

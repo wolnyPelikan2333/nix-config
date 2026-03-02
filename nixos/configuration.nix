@@ -82,6 +82,8 @@
   environment.sessionVariables = {
   NIXOS_OZONE_WL = "0";
   QT_QPA_PLATFORM = "xcb";
+  __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+  CHROME_EXTRA_FLAGS = "--use-gl=desktop";
 };
 
   console.keyMap = "pl2";
@@ -96,6 +98,7 @@
     modesetting.enable = true;
     open = false;
     nvidiaSettings = true;
+    powerManagement.enable = true;
   };
 
   hardware.graphics = {

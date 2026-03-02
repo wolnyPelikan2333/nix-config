@@ -238,6 +238,10 @@
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;
 
+  environment.etc."chromium-flags.conf".text = ''
+--use-gl=desktop
+'';
+
   ###############################################
   ## ZSH
   ###############################################

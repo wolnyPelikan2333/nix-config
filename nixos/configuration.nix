@@ -285,6 +285,7 @@
   programs.nh.enable = true;
   programs.nh.clean = {
     enable = false;
+q
     dates = "weekly";
   };
 

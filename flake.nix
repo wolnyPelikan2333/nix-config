@@ -10,8 +10,12 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }:
-  let
+  outputs = {
+    self,
+    nixpkgs,
+    home-manager,
+    ...
+  }: let
     system = "x86_64-linux";
   in {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
@@ -35,4 +39,3 @@
     };
   };
 }
-

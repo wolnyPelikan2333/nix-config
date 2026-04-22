@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   environment.systemPackages = [
     # --- gaming ---
     pkgs.lutris
@@ -31,4 +29,3 @@
     pkgs.vulkan-validation-layers
   ];
 }
-

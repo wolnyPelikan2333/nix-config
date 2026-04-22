@@ -1,7 +1,10 @@
-{ config, pkgs, lib, ... }:
-
 {
-# test nss commit flow
+  config,
+  pkgs,
+  lib,
+  ...
+}: {
+  # test nss commit flow
   ###############################################
   ## IMPORTY
   ###############################################
@@ -21,7 +24,7 @@
     SUDO_EDITOR = "nvim";
   };
 
-  environment.shells = [ pkgs.zsh ];
+  environment.shells = [pkgs.zsh];
 
   ###############################################
   ## BOOT
@@ -64,27 +67,26 @@
   ## GRAFIKA / KDE
   ###############################################
 
-  
-    services.xserver.enable = true;
+  services.xserver.enable = true;
 
-    services.displayManager.sddm.enable = true;
-    services.displayManager.defaultSession = "plasmax11";
+  services.displayManager.sddm.enable = true;
+  services.displayManager.defaultSession = "plasmax11";
 
-    services.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
-# Twarde wyłączenie Wayland
-    services.displayManager.sddm.wayland.enable = false;
-      services.xserver.xkb = {
-        layout = "pl";
-        variant = "";
-      };
-  
+  # Twarde wyłączenie Wayland
+  services.displayManager.sddm.wayland.enable = false;
+  services.xserver.xkb = {
+    layout = "pl";
+    variant = "";
+  };
+
   environment.sessionVariables = {
-  NIXOS_OZONE_WL = "0";
-  QT_QPA_PLATFORM = "xcb";
-  __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-  CHROME_EXTRA_FLAGS = "--use-gl=desktop";
-};
+    NIXOS_OZONE_WL = "0";
+    QT_QPA_PLATFORM = "xcb";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    CHROME_EXTRA_FLAGS = "--use-gl=desktop";
+  };
 
   console.keyMap = "pl2";
 
@@ -92,7 +94,7 @@
   ## NVIDIA
   ###############################################
 
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = ["nvidia"];
 
   hardware.nvidia = {
     modesetting.enable = true;
@@ -117,23 +119,22 @@
     jack.enable = false;
 
     wireplumber.extraConfig = {
-    "10-bluez-priority" = {
-      "monitor.bluez.rules" = [
-        {
-          matches = [
-            { "node.name" = "~bluez_output.*"; }
-          ];
-          actions = {
-            update-props = {
-              "priority.session" = 2000;
+      "10-bluez-priority" = {
+        "monitor.bluez.rules" = [
+          {
+            matches = [
+              {"node.name" = "~bluez_output.*";}
+            ];
+            actions = {
+              update-props = {
+                "priority.session" = 2000;
+              };
             };
-          };
-        }
-      ];
+          }
+        ];
+      };
     };
   };
-};
-
 
   security.rtkit.enable = true;
 
@@ -162,7 +163,7 @@
       "bluetooth"
     ];
     shell = pkgs.zsh;
-    packages = with pkgs; [ kdePackages.kate ];
+    packages = with pkgs; [kdePackages.kate];
   };
 
   services.displayManager.autoLogin.enable = true;
@@ -174,10 +175,9 @@
   ###############################################
 
   nixpkgs.config = {
-  allowUnfree = true;
-  cudaSupport = true;
+    allowUnfree = true;
+    cudaSupport = true;
   };
-
 
   nix.settings.experimental-features = [
     "nix-command"
@@ -211,10 +211,14 @@
     bash-completion
     xclip
     lm_sensors
-    btop 
+    btop
     broot
     taskwarrior
-    emacs
+    (emacs.pkgs.withPackages (epkgs: [
+      epkgs.apheleia
+      epkgs.dashboard
+      epkgs.magit
+    ]))
     coreutils
     ripgrep
     lact
@@ -242,8 +246,8 @@
   hardware.sensor.iio.enable = true;
 
   environment.etc."chromium-flags.conf".text = ''
---use-gl=desktop
-'';
+    --use-gl=desktop
+  '';
 
   ###############################################
   ## ZSH
@@ -302,43 +306,42 @@
   fileSystems."/mnt/steam" = {
     device = "/dev/disk/by-uuid/8fbe63e6-58f2-4609-905a-5f2365318224";
     fsType = "ext4";
-    options = [ "defaults" "nofail" ];
+    options = ["defaults" "nofail"];
   };
-    
+
   # ==========================================================
   # SWAP + HIBERNATE (NVIDIA SAFE MODE)
   # ==========================================================
 
-      swapDevices = [
-        {
-          device = "/swapfile";
-          size = 40960; # 40 GB (RAM 32 GB + zapas)
-        }
-      ];
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 40960; # 40 GB (RAM 32 GB + zapas)
+    }
+  ];
 
-      boot.resumeDevice = "/swapfile";
+  boot.resumeDevice = "/swapfile";
 
-      services.logind.extraConfig = ''
-        HandleSuspendKey=hibernate
-        HandleLidSwitch=hibernate
-        HandleLidSwitchExternalPower=hibernate
-      '';
-      security.doas = {
+  services.logind.extraConfig = ''
+    HandleSuspendKey=hibernate
+    HandleLidSwitch=hibernate
+    HandleLidSwitchExternalPower=hibernate
+  '';
+  security.doas = {
     enable = true;
     extraRules = [
       {
-        groups = [ "wheel" ];
+        groups = ["wheel"];
         persist = true;
       }
     ];
   };
   services.printing.enable = true;
-  services.printing.drivers = [ pkgs.hplip ];
-  
+  services.printing.drivers = [pkgs.hplip];
+
   ###############################################
   ## STATE
   ###############################################
 
   system.stateVersion = "25.05";
 }
-

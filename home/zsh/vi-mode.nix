@@ -1,6 +1,8 @@
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   programs.zsh.initContent = ''
     # ===============================
     # ZSH VI MODE (foundation)
@@ -15,4 +17,3 @@
     zle -N zle-line-init
   '';
 }
-

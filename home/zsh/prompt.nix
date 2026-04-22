@@ -1,6 +1,8 @@
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   programs.zsh.initContent = ''
     # ===============================
     # ZSH RPROMPT — vim mode indicator
@@ -20,4 +22,3 @@
     RPROMPT='$(_vim_mode_rprompt)'
   '';
 }
-

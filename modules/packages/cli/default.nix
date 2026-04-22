@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     # --- core ---
     neovim
@@ -24,4 +22,3 @@
     '')
   ];
 }
-

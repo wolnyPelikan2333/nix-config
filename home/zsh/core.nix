@@ -1,12 +1,12 @@
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
 
-
-    
     initContent = lib.mkAfter ''
       # sen — sudo nvim helper
       sen() {
@@ -31,9 +31,8 @@
           tmux new -A -s main
         fi
 
-      
-      
+
+
     '';
   };
 }
-

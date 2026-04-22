@@ -1,11 +1,12 @@
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   options.my.aliases.enable =
     lib.mkEnableOption "Enable custom aliases";
 
   config = lib.mkIf config.my.aliases.enable {
-
     programs.zsh.shellAliases = lib.mkMerge [
       {
         ll = "eza -la";
@@ -27,7 +28,5 @@
         }
       ''
     ];
-
   };
 }
-

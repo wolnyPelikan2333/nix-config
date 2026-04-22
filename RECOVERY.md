@@ -1,21 +1,22 @@
 cd /etc/nixos
 
 # pobierz aktualny stan z GitHuba
+
 git fetch --all --tags
 
 # przełącz repo na złoty build
+
 git checkout golden-gen7
 
 # odbuduj i przełącz system
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
 
+sudo nixos-rebuild switch --flake /etc/nixos#nixos
 
 📌 Zasada:
 
 git checkout → zmienia konfigurację
 
 nixos-rebuild switch → zmienia system
-
 
 # 🛟 NixOS Recovery Runbook
 
@@ -27,6 +28,7 @@ systemu NixOS z repozytorium `/etc/nixos`.
 ## 🟢 Złoty build
 
 Aktualny stabilny punkt:
+
 - **Tag:** `golden-gen7`
 - **Opis:** Fixed EFI /boot mount, stable boot, working systemd-boot
 - **Status:** bootowalny, sprawdzony ręcznie
@@ -37,7 +39,7 @@ Aktualny stabilny punkt:
 
 Wykonuj **dokładnie w tej kolejności**:
 
-```bash
+````bash
 cd /etc/nixos
 git fetch --all --tags
 git checkout golden-gen7
@@ -103,3 +105,4 @@ git push
 
 
 
+````

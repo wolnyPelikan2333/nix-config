@@ -1,6 +1,8 @@
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   programs.zsh.initContent = ''
     # ===============================
     # VIM MODE INDICATOR (state only)
@@ -21,4 +23,3 @@
     zle -N zle-keymap-select
   '';
 }
-

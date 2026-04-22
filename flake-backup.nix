@@ -10,52 +10,59 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
-    let
-      system = "x86_64-linux";
-    in
-    {
-      # -----------------------------
-      #       NIXOS CONFIG
-      # -----------------------------
-      nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
-        inherit system;
+  outputs = {
+    self,
+    nixpkgs,
+    home-manager,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+  in {
+    # -----------------------------
+    #       NIXOS CONFIG
+    # -----------------------------
+    nixosConfigurations.desktop = nixpkgs.lib.nixosSystem {
+      inherit system;
 
-        specialArgs = { inherit inputs; };
+      specialArgs = {inherit inputs;};
 
-        modules = [
-          # Główny plik systemu
-          ./nixos/configuration.nix
+      modules = [
+        # Główny plik systemu
+        ./nixos/configuration.nix
 
-          # Moduł Home Managera (konieczny)
-          home-manager.nixosModules.home-manager
+        # Moduł Home Managera (konieczny)
+        home-manager.nixosModules.home-manager
 
-          # -----------------------------
-          # HOME MANAGER – użytkownik michal
-          # -----------------------------
-          ({
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.michal = import ./home/michal.nix;
-          })
+        # -----------------------------
+        # HOME MANAGER – użytkownik michal
+        # -----------------------------
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.michal = import ./home/michal.nix;
+        }
 
-          # -----------------------------
-          # NH z nixpkgs — jako osobny moduł
-          # -----------------------------
-          ({ config, pkgs, ... }: {
-            environment.systemPackages = [
-              pkgs.nh
-            ];
-          })
-        ];
-      };
-
-      # -----------------------------
-      # Wymagane przez NH / flakes
-      # -----------------------------
-      packages.${system}.default =
-        self.nixosConfigurations.desktop.config.system.build.toplevel;
+        # -----------------------------
+        # NH z nixpkgs — jako osobny moduł
+        # -----------------------------
+        ({
+          config,
+          pkgs,
+          ...
+        }: {
+          environment.systemPackages = [
+            pkgs.nh
+          ];
+        })
+      ];
     };
-}
 
+    # -----------------------------
+    # Wymagane przez NH / flakes
+    # -----------------------------
+    packages.${system}.default =
+      self.nixosConfigurations.desktop.config.system.build.toplevel;
+  };
+}
 # backup utworzony
+

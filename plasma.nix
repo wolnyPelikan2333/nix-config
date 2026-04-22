@@ -1,6 +1,7 @@
-{ config, pkgs, ... }:
-
 {
- services.desktopManager.plasma6.enable = true;
+  config,
+  pkgs,
+  ...
+}: {
+  services.desktopManager.plasma6.enable = true;
 }
-

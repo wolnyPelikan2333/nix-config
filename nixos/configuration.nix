@@ -234,6 +234,9 @@
     ollama
     python3
     system-config-printer
+    treefmt
+    alejandra
+    nodePackages.prettier
   ];
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;

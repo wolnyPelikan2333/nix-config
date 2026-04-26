@@ -166,8 +166,8 @@
     packages = with pkgs; [kdePackages.kate];
   };
 
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "michal";
+  services.displayManager.autoLogin.enable =false;
+  services.displayManager.autoLogin.user = null;
 
   services.flatpak.enable = true;
   ###############################################
@@ -340,7 +340,22 @@
   };
   services.printing.enable = true;
   services.printing.drivers = [pkgs.hplip];
+# --- SEKCJA BEZPIECZEŃSTWA (Dopisz przed ostatnim nawiasem }) ---
 
+  # 1. Firewall - blokuje nieproszonych gości
+  networking.firewall.enable = true;
+  networking.firewall.allowedTCPPorts = [ ]; 
+
+  # 2. SSH - tylko dla Ciebie (bez haseł przez sieć)
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;
+      PermitRootLogin = "no";
+    };
+  };
+  
   ###############################################
   ## STATE
   ###############################################

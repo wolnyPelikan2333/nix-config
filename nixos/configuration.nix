@@ -3,7 +3,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   # test nss commit flow
   ###############################################
   ## IMPORTY
@@ -24,7 +25,7 @@
     SUDO_EDITOR = "nvim";
   };
 
-  environment.shells = [pkgs.zsh];
+  environment.shells = [ pkgs.zsh ];
 
   ###############################################
   ## BOOT
@@ -47,7 +48,7 @@
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
-  
+
   time.timeZone = "Europe/Warsaw";
 
   i18n.defaultLocale = "pl_PL.UTF-8";
@@ -94,7 +95,7 @@
   ## NVIDIA
   ###############################################
 
-  services.xserver.videoDrivers = ["nvidia"];
+  services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
     modesetting.enable = true;
@@ -123,7 +124,7 @@
         "monitor.bluez.rules" = [
           {
             matches = [
-              {"node.name" = "~bluez_output.*";}
+              { "node.name" = "~bluez_output.*"; }
             ];
             actions = {
               update-props = {
@@ -163,7 +164,7 @@
       "bluetooth"
     ];
     shell = pkgs.zsh;
-    packages = with pkgs; [kdePackages.kate];
+    packages = with pkgs; [ kdePackages.kate ];
   };
 
   services.displayManager.autoLogin.enable = false;
@@ -312,7 +313,10 @@
   fileSystems."/mnt/steam" = {
     device = "/dev/disk/by-uuid/8fbe63e6-58f2-4609-905a-5f2365318224";
     fsType = "ext4";
-    options = ["defaults" "nofail"];
+    options = [
+      "defaults"
+      "nofail"
+    ];
   };
 
   # ==========================================================
@@ -338,29 +342,34 @@
     enable = true;
     extraRules = [
       {
-        groups = ["wheel"];
+        groups = [ "wheel" ];
         persist = true;
       }
     ];
   };
-
+  
+  security.pam.services.sshd.googleAuthenticator.enable = true;
+  
   services.printing.enable = true;
-  services.printing.drivers = [pkgs.hplip];
+  services.printing.drivers = [ pkgs.hplip ];
 
   ###############################################
   ## BEZPIECZEŃSTWO
   ###############################################
 
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [];
+  networking.firewall.allowedTCPPorts = [ ];
 
   services.openssh = {
     enable = true;
     settings = {
       PasswordAuthentication = false;
-      KbdInteractiveAuthentication = false;
+      KbdInteractiveAuthentication = true; # Wymagane dla 2FA
       PermitRootLogin = "no";
     };
+    extraConfig = ''
+      AuthenticationMethods publickey,keyboard-interactive
+    '';
   };
 
   services.fail2ban.enable = true;
@@ -388,7 +397,7 @@
     ;; Konfiguracja Apheleia - formatowanie przy zapisie
     (setq apheleia-formatters
           '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
-    
+
     (setq apheleia-mode-alist
           '((nix-mode . nixfmt)))
 

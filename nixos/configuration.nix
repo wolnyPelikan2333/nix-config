@@ -222,6 +222,7 @@
       epkgs.magit
       epkgs.nix-mode
       epkgs.org
+      epkgs.doom-themes
     ]))
     nixfmt-rfc-style
     coreutils
@@ -378,89 +379,6 @@
 
   services.fail2ban.enable = true;
 
-  ###############################################
-  ## EMACS CONFIG
-  ###############################################
-
-  services.emacs = {
-    enable = true;
-    package = pkgs.emacs.pkgs.withPackages (epkgs: [
-      epkgs.apheleia
-      epkgs.dashboard
-      epkgs.magit
-      epkgs.nix-mode
-      epkgs.org
-    ]);
-  };
-
-  environment.etc."emacs/site-start.el".text = ''
-    ;; 1. KONFIGURACJA PODSTAWOWA
-    (setq inhibit-startup-screen t)
-    (setq initial-scratch-message nil)
-
-    ;; 2. RECENTF (Zapamiętywanie plików)
-    (require 'recentf)
-    (recentf-mode 1)
-    (setq recentf-max-saved-items 100)
-
-    ;; 3. DASHBOARD
-    (require 'dashboard)
-    (setq dashboard-items '((recents  . 15)
-                            (bookmarks . 5)
-                            (projects . 5)))
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-startup-banner 'official)
-    
-    ;; WYMUSZENIE DASHBOARDU (Metoda dla Emacs 30)
-    (dashboard-setup-startup-hook)
-    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
-
-    ;; 4. TWOJE TRYBY (Nix, Apheleia)
-    (require 'nix-mode)
-    (require 'apheleia)
-    (setq apheleia-formatters
-          '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
-    (setq apheleia-mode-alist '((nix-mode . nixfmt)))
-    (apheleia-global-mode +1)
-    (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
-
-    ;; 5. SZYBKI RATUNEK (Gdyby dashboard zniknął)
-    (global-set-key (kbd "C-c d") (lambda () (interactive) (dashboard-refresh-buffer) (switch-to-buffer "*dashboard*")))
-  '';
-
-  # To stworzy plik bezpośrednio w Twoim folderze domowym
-  home-manager.users.michal.home.file.".emacs.d/init.el".text = ''
-    ;; 1. Wyłącz ekran powitalny natychmiast
-    (setq inhibit-startup-screen t)
-    (setq initial-scratch-message nil)
-
-    ;; 2. Załaduj Recentf (Ostatnie pliki)
-    (require 'recentf)
-    (recentf-mode 1)
-    (setq recentf-max-saved-items 100)
-
-    ;; 3. Konfiguracja Dashboard
-    (require 'dashboard)
-    (dashboard-setup-startup-hook)
-    (setq dashboard-items '((recents  . 15)
-                            (bookmarks . 5)
-                            (projects . 5)))
-    (setq dashboard-startup-banner 'official)
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-
-    ;; Wymuszenie otwarcia Dashboardu jako pierwszego bufora
-    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
-
-    ;; 4. Apheleia i Nix-mode
-    (require 'nix-mode)
-    (require 'apheleia)
-    (setq apheleia-formatters
-          '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
-    (setq apheleia-mode-alist '((nix-mode . nixfmt)))
-    (apheleia-global-mode +1)
-  '';
   
   ###############################################
   ## STATE

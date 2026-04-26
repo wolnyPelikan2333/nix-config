@@ -47,7 +47,7 @@
 
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
-
+  
   time.timeZone = "Europe/Warsaw";
 
   i18n.defaultLocale = "pl_PL.UTF-8";
@@ -166,10 +166,11 @@
     packages = with pkgs; [kdePackages.kate];
   };
 
-  services.displayManager.autoLogin.enable =false;
+  services.displayManager.autoLogin.enable = false;
   services.displayManager.autoLogin.user = null;
 
   services.flatpak.enable = true;
+
   ###############################################
   ## SYSTEM PACKAGES
   ###############################################
@@ -218,7 +219,10 @@
       epkgs.apheleia
       epkgs.dashboard
       epkgs.magit
+      epkgs.nix-mode
+      epkgs.org
     ]))
+    nixfmt-rfc-style
     coreutils
     ripgrep
     lact
@@ -243,6 +247,7 @@
     nodePackages.prettier
     nmap
   ];
+
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;
 
@@ -286,7 +291,6 @@
   programs.nh.enable = true;
   programs.nh.clean = {
     enable = false;
-
     dates = "weekly";
   };
 
@@ -329,6 +333,7 @@
     HandleLidSwitch=hibernate
     HandleLidSwitchExternalPower=hibernate
   '';
+
   security.doas = {
     enable = true;
     extraRules = [
@@ -338,15 +343,17 @@
       }
     ];
   };
+
   services.printing.enable = true;
   services.printing.drivers = [pkgs.hplip];
-# --- SEKCJA BEZPIECZEŃSTWA (Dopisz przed ostatnim nawiasem }) ---
 
-  # 1. Firewall - blokuje nieproszonych gości
+  ###############################################
+  ## BEZPIECZEŃSTWO
+  ###############################################
+
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ ]; 
+  networking.firewall.allowedTCPPorts = [];
 
-  # 2. SSH - tylko dla Ciebie (bez haseł przez sieć)
   services.openssh = {
     enable = true;
     settings = {
@@ -355,7 +362,40 @@
       PermitRootLogin = "no";
     };
   };
-  
+
+  services.fail2ban.enable = true;
+
+  ###############################################
+  ## EMACS CONFIG
+  ###############################################
+
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs.pkgs.withPackages (epkgs: [
+      epkgs.apheleia
+      epkgs.dashboard
+      epkgs.magit
+      epkgs.nix-mode
+      epkgs.org
+    ]);
+  };
+
+  # To wstrzyknie konfigurację bezpośrednio do środowiska Emacsa
+  environment.etc."emacs/site-start.el".text = ''
+    ;; Aktywacja formatowania przy zapisie
+    (require 'apheleia)
+    (apheleia-global-mode +1)
+
+    ;; Ustawienie nixfmt jako formatyzatora dla plików .nix
+    (setq apheleia-formatters
+          '((nixfmt . ("nixfmt-rfc-style"))))
+    (setq apheleia-mode-alist
+          '((nix-mode . nixfmt)))
+
+    ;; Włączenie kolorowania kodu wewnątrz bloków Org-mode
+    (setq org-src-fontify-natively t)
+  '';
+
   ###############################################
   ## STATE
   ###############################################

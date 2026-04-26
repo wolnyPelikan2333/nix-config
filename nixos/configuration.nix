@@ -241,6 +241,7 @@
     treefmt
     alejandra
     nodePackages.prettier
+    nmap
   ];
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;
@@ -285,7 +286,7 @@
   programs.nh.enable = true;
   programs.nh.clean = {
     enable = false;
-q
+
     dates = "weekly";
   };
 

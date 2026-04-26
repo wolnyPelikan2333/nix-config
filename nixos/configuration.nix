@@ -394,46 +394,39 @@
   };
 
   environment.etc."emacs/site-start.el".text = ''
-    ;; --- WYMUSZENIE DASHBOARDU NA STARCIE ---
-    (setq inhibit-startup-screen t)        ; Wyłącz ekran powitalny GNU
-    (setq initial-scratch-message nil)     ; Wyczyść bufor scratch
-    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
-    ;; 1. Zapamiętywanie ostatnich plików (Recentf)
+    ;; 1. Całkowite wyłączenie standardowego powitania
+    (setq inhibit-startup-screen t)
+    (setq initial-scratch-message nil)
+
+    ;; 2. Konfiguracja Recentf (ostatnie pliki)
     (require 'recentf)
     (recentf-mode 1)
-    (setq recentf-max-menu-items 25)
-    (setq recentf-max-saved-items 25)
+    (setq recentf-max-saved-items 100)
 
-    ;; 2. Konfiguracja Dashboardu
+    ;; 3. Konfiguracja Dashboardu
     (require 'dashboard)
-    (dashboard-setup-startup-hook)
-    ;; Ustawienie elementów na ekranie startowym
-    (setq dashboard-items '((recents  . 10)   ; 10 ostatnich plików
-                            (bookmarks . 5)   ; zakładki
-                            (projects . 5)))  ; projekty magit/projectile
-    (setq dashboard-banner-logo-title "Witaj Michał! Miłej pracy.")
+    (setq dashboard-items '((recents  . 15)
+                            (bookmarks . 5)
+                            (projects . 5)))
     (setq dashboard-set-heading-icons t)
     (setq dashboard-set-file-icons t)
-    (setq dashboard-startup-banner 'official) ; logo Emacsa
+    (setq dashboard-startup-banner 'official)
+    
+    ;; Klucz do sukcesu: Wymuszenie otwarcia po załadowaniu wszystkiego
+    (dashboard-setup-startup-hook)
+    (add-hook 'emacs-startup-hook 'dashboard-open)
 
-    ;; 3. Twoja istniejąca konfiguracja (Nix-mode i Apheleia)
+    ;; 4. Reszta Twojej konfiguracji (Nix-mode, Apheleia)
     (require 'nix-mode)
     (require 'apheleia)
-
     (setq apheleia-formatters
           '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
-    
-    (setq apheleia-mode-alist
-          '((nix-mode . nixfmt)))
-
+    (setq apheleia-mode-alist '((nix-mode . nixfmt)))
     (apheleia-global-mode +1)
-
+    
     (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
-
-    ;; Skrót klawiszowy do szybkiego otwierania listy ostatnich plików
-    (global-set-key (kbd "C-c r") 'recentf-open-files)
   '';
-
+  
   ###############################################
   ## STATE
   ###############################################

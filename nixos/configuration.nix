@@ -380,20 +380,23 @@
     ]);
   };
 
-  # To wstrzyknie konfigurację bezpośrednio do środowiska Emacsa
   environment.etc."emacs/site-start.el".text = ''
-    ;; Aktywacja formatowania przy zapisie
+    ;; Załadowanie pakietów zainstalowanych przez Nix
+    (require 'nix-mode)
     (require 'apheleia)
-    (apheleia-global-mode +1)
 
-    ;; Ustawienie nixfmt jako formatyzatora dla plików .nix
+    ;; Konfiguracja Apheleia - formatowanie przy zapisie
     (setq apheleia-formatters
-          '((nixfmt . ("nixfmt-rfc-style"))))
+          '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
+    
     (setq apheleia-mode-alist
           '((nix-mode . nixfmt)))
 
-    ;; Włączenie kolorowania kodu wewnątrz bloków Org-mode
-    (setq org-src-fontify-natively t)
+    ;; Włączenie trybu globalnego
+    (apheleia-global-mode +1)
+
+    ;; Opcjonalnie: wymuś tryb nix-mode dla plików .nix
+    (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
   '';
 
   ###############################################

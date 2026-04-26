@@ -394,22 +394,40 @@
   };
 
   environment.etc."emacs/site-start.el".text = ''
-    ;; Załadowanie pakietów zainstalowanych przez Nix
+    ;; 1. Zapamiętywanie ostatnich plików (Recentf)
+    (require 'recentf)
+    (recentf-mode 1)
+    (setq recentf-max-menu-items 25)
+    (setq recentf-max-saved-items 25)
+
+    ;; 2. Konfiguracja Dashboardu
+    (require 'dashboard)
+    (dashboard-setup-startup-hook)
+    ;; Ustawienie elementów na ekranie startowym
+    (setq dashboard-items '((recents  . 10)   ; 10 ostatnich plików
+                            (bookmarks . 5)   ; zakładki
+                            (projects . 5)))  ; projekty magit/projectile
+    (setq dashboard-banner-logo-title "Witaj Michał! Miłej pracy.")
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-startup-banner 'official) ; logo Emacsa
+
+    ;; 3. Twoja istniejąca konfiguracja (Nix-mode i Apheleia)
     (require 'nix-mode)
     (require 'apheleia)
 
-    ;; Konfiguracja Apheleia - formatowanie przy zapisie
     (setq apheleia-formatters
           '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
-
+    
     (setq apheleia-mode-alist
           '((nix-mode . nixfmt)))
 
-    ;; Włączenie trybu globalnego
     (apheleia-global-mode +1)
 
-    ;; Opcjonalnie: wymuś tryb nix-mode dla plików .nix
     (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+
+    ;; Skrót klawiszowy do szybkiego otwierania listy ostatnich plików
+    (global-set-key (kbd "C-c r") 'recentf-open-files)
   '';
 
   ###############################################

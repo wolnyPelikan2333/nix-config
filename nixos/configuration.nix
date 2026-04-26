@@ -223,6 +223,9 @@
       epkgs.nix-mode
       epkgs.org
       epkgs.doom-themes
+      epkgs.vterm          
+      epkgs.all-the-icons  
+      epkgs.doom-modeline  
     ]))
     nixfmt-rfc-style
     coreutils
@@ -352,8 +355,8 @@
   
   security.pam.services.sshd.googleAuthenticator.enable = true;
   # 2FA dla ekranu logowania i terminala lokalnego
-  security.pam.services.sddm.googleAuthenticator.enable = true;
-  security.pam.services.login.googleAuthenticator.enable = true;
+  # security.pam.services.sddm.googleAuthenticator.enable = true;
+  # security.pam.services.login.googleAuthenticator.enable = true;
   
   services.printing.enable = true;
   services.printing.drivers = [ pkgs.hplip ];

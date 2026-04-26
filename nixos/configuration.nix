@@ -394,16 +394,16 @@
   };
 
   environment.etc."emacs/site-start.el".text = ''
-    ;; 1. Całkowite wyłączenie standardowego powitania
+    ;; 1. KONFIGURACJA PODSTAWOWA
     (setq inhibit-startup-screen t)
     (setq initial-scratch-message nil)
 
-    ;; 2. Konfiguracja Recentf (ostatnie pliki)
+    ;; 2. RECENTF (Zapamiętywanie plików)
     (require 'recentf)
     (recentf-mode 1)
     (setq recentf-max-saved-items 100)
 
-    ;; 3. Konfiguracja Dashboardu
+    ;; 3. DASHBOARD
     (require 'dashboard)
     (setq dashboard-items '((recents  . 15)
                             (bookmarks . 5)
@@ -412,19 +412,21 @@
     (setq dashboard-set-file-icons t)
     (setq dashboard-startup-banner 'official)
     
-    ;; Klucz do sukcesu: Wymuszenie otwarcia po załadowaniu wszystkiego
+    ;; WYMUSZENIE DASHBOARDU (Metoda dla Emacs 30)
     (dashboard-setup-startup-hook)
-    (add-hook 'emacs-startup-hook 'dashboard-open)
+    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
 
-    ;; 4. Reszta Twojej konfiguracji (Nix-mode, Apheleia)
+    ;; 4. TWOJE TRYBY (Nix, Apheleia)
     (require 'nix-mode)
     (require 'apheleia)
     (setq apheleia-formatters
           '((nixfmt . ("/run/current-system/sw/bin/nixfmt-rfc-style"))))
     (setq apheleia-mode-alist '((nix-mode . nixfmt)))
     (apheleia-global-mode +1)
-    
     (add-to-list 'auto-mode-alist '("\\.nix\\'" . nix-mode))
+
+    ;; 5. SZYBKI RATUNEK (Gdyby dashboard zniknął)
+    (global-set-key (kbd "C-c d") (lambda () (interactive) (dashboard-refresh-buffer) (switch-to-buffer "*dashboard*")))
   '';
   
   ###############################################

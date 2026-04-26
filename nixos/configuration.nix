@@ -247,6 +247,7 @@
     alejandra
     nodePackages.prettier
     nmap
+    google-authenticator
   ];
 
   # automatyczne ładowanie modułów czujników

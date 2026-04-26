@@ -394,6 +394,10 @@
   };
 
   environment.etc."emacs/site-start.el".text = ''
+    ;; --- WYMUSZENIE DASHBOARDU NA STARCIE ---
+    (setq inhibit-startup-screen t)        ; Wyłącz ekran powitalny GNU
+    (setq initial-scratch-message nil)     ; Wyczyść bufor scratch
+    (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*")))
     ;; 1. Zapamiętywanie ostatnich plików (Recentf)
     (require 'recentf)
     (recentf-mode 1)

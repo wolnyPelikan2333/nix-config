@@ -290,7 +290,7 @@
     options = "--delete-generations +10";
   };
 
-  nix.settings.auto-optimise-store = true;
+  
 
   ###############################################
   ## NH

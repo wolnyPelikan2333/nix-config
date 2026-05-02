@@ -185,6 +185,8 @@
     "nix-command"
     "flakes"
   ];
+  nix.settings.trusted-users = [ "root" "michal" ];
+  nix.settings.auto-optimise-store = true;
 
   environment.systemPackages = with pkgs; [
     kdePackages.okular

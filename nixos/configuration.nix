@@ -71,20 +71,20 @@
   services.xserver.enable = true;
 
   services.displayManager.sddm.enable = true;
-  services.displayManager.defaultSession = "plasmax11";
+  services.displayManager.defaultSession = "plasma";
 
   services.desktopManager.plasma6.enable = true;
 
   # Twarde wyłączenie Wayland
-  services.displayManager.sddm.wayland.enable = false;
+  services.displayManager.sddm.wayland.enable = true;
   services.xserver.xkb = {
     layout = "pl";
     variant = "";
   };
 
   environment.sessionVariables = {
-    NIXOS_OZONE_WL = "0";
-    QT_QPA_PLATFORM = "xcb";
+    NIXOS_OZONE_WL = "1";
+    QT_QPA_PLATFORM = "wayland;xcb";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
     CHROME_EXTRA_FLAGS = "--use-gl=desktop";
   };
@@ -199,7 +199,7 @@
     # Overlay 2: Emacs z Native Compilation
     (import (builtins.fetchTarball {
       url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-      sha256 = "1grzya7lzrf35mbb0kfhgn1y17fdfzbr40cf3rbaw7ha2g42yfmn"; # To jest tymczasowy hash
+     sha256 = "0f5c8srk6gq31zdd24lzw8qv79bmdlaw27rpfyg5jix61fzz1zcj";
     }))
   ];
   
@@ -259,6 +259,8 @@
     prettier
     nmap
     google-authenticator
+    isync
+    mu
     # 1. Sam program Emacs z kompilacją natywną
     (pkgs.emacs-pgtk.override {
       withNativeCompilation = true;
@@ -361,7 +363,7 @@
     }
   ];
 
-  boot.resumeDevice = "/swapfile";
+  #boot.resumeDevice = "/swapfile";
 
   services.logind.settings = {
     Login = {

@@ -262,7 +262,7 @@
     kitty
     eza
     isync
-    mu
+    (mu.override { emacs = emacs; })
     # 1. Sam program Emacs z kompilacją natywną
     (pkgs.emacs-pgtk.override {
       withNativeCompilation = true;
@@ -280,6 +280,7 @@
       epkgs.vterm
       epkgs.all-the-icons
       epkgs.doom-modeline
+      epkgs.mu4e
     ]))
   ];
   

@@ -259,6 +259,8 @@
     prettier
     nmap
     google-authenticator
+    kitty
+    eza
     isync
     mu
     # 1. Sam program Emacs z kompilacją natywną

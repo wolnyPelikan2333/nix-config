@@ -1,40 +1,22 @@
 {
-  description = "NixOS + Home Manager (flakes)";
+  description = "Konfiguracja Systemu Michała - Flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
-
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # Dodajemy źródło dla nowszego Emacsa
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    home-manager,
-    ...
-  }: let
-    system = "x86_64-linux";
-  in {
+  outputs = { self, nixpkgs, emacs-overlay, ... }@inputs: {
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      inherit system;
-
+      system = "x86_64-linux";
+      specialArgs = { inherit inputs; };
       modules = [
-        # system
+        # Ten moduł sprawia, że emacs-unstable będzie dostępny w Twoim systemie
+        ({ pkgs, ... }: {
+          nixpkgs.overlays = [ (import emacs-overlay) ];
+        })
         ./nixos/configuration.nix
-
-        # home-manager (flakes way)
-        home-manager.nixosModules.home-manager
-
-        # HM config
-        {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "bak";
-          home-manager.users.michal = import ./home/michal.nix;
-        }
       ];
     };
   };

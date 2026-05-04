@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = [
     # --- gaming ---
-    pkgs.lutris
+    
     pkgs.wineWowPackages.full
     pkgs.winetricks
     pkgs.protontricks

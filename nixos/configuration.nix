@@ -188,6 +188,23 @@
   nix.settings.trusted-users = [ "root" "michal" ];
   nix.settings.auto-optimise-store = true;
 
+  nixpkgs.overlays = [
+    # Overlay 1: Naprawa OpenLDAP (pomija testy)
+    (final: prev: {
+      openldap = prev.openldap.overrideAttrs (oldAttrs: {
+        doCheck = false;
+        doInstallCheck = false;
+      });
+    })
+    # Overlay 2: Emacs z Native Compilation
+    (import (builtins.fetchTarball {
+      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+      sha256 = "1grzya7lzrf35mbb0kfhgn1y17fdfzbr40cf3rbaw7ha2g42yfmn"; # To jest tymczasowy hash
+    }))
+  ];
+  
+
+  
   environment.systemPackages = with pkgs; [
     kdePackages.okular
     wget
@@ -203,8 +220,7 @@
     steam
     zathura
     discord
-    lutris
-    wineWowPackages.full
+    wineWow64Packages.full
     winetricks
     libreoffice
     entr
@@ -217,19 +233,8 @@
     lm_sensors
     btop
     broot
-    taskwarrior
-    (emacs.pkgs.withPackages (epkgs: [
-      epkgs.apheleia
-      epkgs.dashboard
-      epkgs.magit
-      epkgs.nix-mode
-      epkgs.org
-      epkgs.doom-themes
-      epkgs.vterm          
-      epkgs.all-the-icons  
-      epkgs.doom-modeline  
-    ]))
-    nixfmt-rfc-style
+    taskwarrior2
+    nixfmt
     coreutils
     ripgrep
     lact
@@ -244,17 +249,36 @@
     prismlauncher
     gparted
     blender
-    bitwarden
+    bitwarden-desktop
     davinci-resolve
     ollama
     python3
     system-config-printer
     treefmt
     alejandra
-    nodePackages.prettier
+    prettier
     nmap
     google-authenticator
+    # 1. Sam program Emacs z kompilacją natywną
+    (pkgs.emacs-pgtk.override {
+      withNativeCompilation = true;
+      withTreeSitter = true;
+    })
+
+    # 2. Pakiety do tego konkretnego Emacsa (zwróć uwagę na podwójny nawias na początku!)
+    ((pkgs.emacsPackagesFor pkgs.emacs-pgtk).withPackages (epkgs: [
+      epkgs.apheleia
+      epkgs.dashboard
+      epkgs.magit
+      epkgs.nix-mode
+      epkgs.org
+      epkgs.doom-themes
+      epkgs.vterm
+      epkgs.all-the-icons
+      epkgs.doom-modeline
+    ]))
   ];
+  
 
   # automatyczne ładowanie modułów czujników
   hardware.sensor.iio.enable = true;
@@ -339,12 +363,14 @@
 
   boot.resumeDevice = "/swapfile";
 
-  services.logind.extraConfig = ''
-    HandleSuspendKey=hibernate
-    HandleLidSwitch=hibernate
-    HandleLidSwitchExternalPower=hibernate
-  '';
-
+  services.logind.settings = {
+    Login = {
+      HandleSuspendKey = "hibernate";
+      HandleLidSwitch = "hibernate";
+      HandleLidSwitchExternalPower = "hibernate";
+    };
+  };
+  
   security.doas = {
     enable = true;
     extraRules = [

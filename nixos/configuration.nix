@@ -75,6 +75,31 @@
 
   services.desktopManager.plasma6.enable = true;
 
+  ###############################################
+  ## SWAY (OBOK KDE)
+  ###############################################
+
+  programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
+    extraPackages = with pkgs; [
+      swaylock     # Blokada ekranu
+      swayidle     # Automatyczne wygaszanie
+      foot         # Lekki terminal pod Waylanda
+      wofi         # Menu aplikacji
+      waybar       # Pasek zadań
+      mako         # Powiadomienia
+      wl-clipboard # Obsługa schowka (niezbędna dla Emacsa!)
+    ];
+  };
+
+  # Wsparcie dla portali (udostępnianie ekranu, pliki)
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+
   # Twarde wyłączenie Wayland
   services.displayManager.sddm.wayland.enable = true;
   services.xserver.xkb = {
@@ -86,6 +111,7 @@
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    WLR_NO_HARDWARE_CURSORS = "1";
     CHROME_EXTRA_FLAGS = "--use-gl=desktop";
   };
 
@@ -228,8 +254,7 @@
     qutebrowser
     w3m
     lazygit
-    bash-completion
-    xclip
+    bash-completion    xclip
     lm_sensors
     btop
     broot

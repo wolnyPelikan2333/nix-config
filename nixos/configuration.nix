@@ -269,20 +269,6 @@
       withNativeCompilation = true;
       withTreeSitter = true;
     })
-
-    # 2. Pakiety do tego konkretnego Emacsa (zwróć uwagę na podwójny nawias na początku!)
-    ((pkgs.emacsPackagesFor pkgs.emacs-pgtk).withPackages (epkgs: [
-      epkgs.apheleia
-      epkgs.dashboard
-      epkgs.magit
-      epkgs.nix-mode
-      epkgs.org
-      epkgs.doom-themes
-      epkgs.vterm
-      epkgs.all-the-icons
-      epkgs.doom-modeline
-      epkgs.mu4e
-    ]))
   ];
   
 

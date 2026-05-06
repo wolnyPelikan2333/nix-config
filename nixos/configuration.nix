@@ -262,6 +262,7 @@
     google-authenticator
     kitty
     eza
+    heroic
     isync
     (mu.override { emacs = emacs; })
     # 1. Sam program Emacs z kompilacją natywną

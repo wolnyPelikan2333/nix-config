@@ -292,6 +292,7 @@
     google-authenticator
     kitty
     eza
+    syncthing
     heroic
     isync
     (mu.override { emacs = emacs; })

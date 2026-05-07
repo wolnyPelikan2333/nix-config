@@ -16,7 +16,7 @@
   ];
 
 
-  services.syncthing = {
+ services.syncthing = {
     enable = true;
     user = "michal";
     dataDir = "/home/michal/mapa";
@@ -24,13 +24,19 @@
     overrideDevices = true;
     overrideFolders = true;
     guiAddress = "127.0.0.1:8384";
+    openDefaultPorts = true; # Dodane dla pewności połączenia
+    
     settings = {
       devices = {
-        "telefon-michala" = { id = "HITIRKP-6G6YEX3-MDCPRJT-TF2YU33-IAF4LRE-3RDBYM4-PBPEKI7-IRK5BQ3"; }; # Wpisz tu ID z telefonu
-      };
+        "telefon-michala" = { 
+          id = "HITIRKP-6G6YEX3-MDCPRJT-TF2YU33-IAF4LRE-3RDBYM4-PBPEKI7-IRK5BQ3"; 
+          addresses = [ "tcp://192.168.1.127:22000" ];
+        };
+      }; # Koniec devices
+      
       folders = {
         "zdrowie-i-notatki" = {
-          path = "/home/michal/mapa"; # Synchronizujemy całą MAPĘ, by objąć wszystkie pliki .org
+          path = "/home/michal/mapa";
           devices = [ "telefon-michala" ];
           versioning = {
             type = "simple";
@@ -39,10 +45,9 @@
             };
           };
         };
-      };
-    };
-  };
-
+      }; # Koniec folders
+    }; # Koniec settings
+  }; # Koniec services.syncthing
   # Otwarcie portów w firewallu dla Syncthing
   networking.firewall.allowedTCPPorts = [ 22000 ];
   networking.firewall.allowedUDPPorts = [ 22000 21027 ];

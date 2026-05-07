@@ -15,6 +15,36 @@
     ../modules/packages.nix
   ];
 
+
+  services.syncthing = {
+    enable = true;
+    user = "michal";
+    dataDir = "/home/michal/mapa";
+    configDir = "/home/michal/.config/syncthing";
+    overrideDevices = true;
+    overrideFolders = true;
+    settings = {
+      devices = {
+        "telefon-michala" = { id = "HITIRKP-6G6YEX3-MDCPRJT-TF2YU33-IAF4LRE-3RDBYM4-PBPEKI7-IRK5BQ3"; }; # Wpisz tu ID z telefonu
+      };
+      folders = {
+        "zdrowie-i-notatki" = {
+          path = "/home/michal/mapa"; # Synchronizujemy całą MAPĘ, by objąć wszystkie pliki .org
+          devices = [ "telefon-michala" ];
+          versioning = {
+            type = "simple";
+            params = {
+              keep = "5";
+            };
+          };
+        };
+      };
+    };
+  };
+
+  # Otwarcie portów w firewallu dla Syncthing
+  networking.firewall.allowedTCPPorts = [ 22000 ];
+  networking.firewall.allowedUDPPorts = [ 22000 21027 ];
   ###############################################
   ## GLOBALNE ZMIENNE
   ###############################################
@@ -387,7 +417,7 @@
   ###############################################
 
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ ];
+ 
 
   services.openssh = {
     enable = true;

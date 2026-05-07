@@ -23,6 +23,7 @@
     configDir = "/home/michal/.config/syncthing";
     overrideDevices = true;
     overrideFolders = true;
+    guiAddress = "127.0.0.1:8384";
     settings = {
       devices = {
         "telefon-michala" = { id = "HITIRKP-6G6YEX3-MDCPRJT-TF2YU33-IAF4LRE-3RDBYM4-PBPEKI7-IRK5BQ3"; }; # Wpisz tu ID z telefonu

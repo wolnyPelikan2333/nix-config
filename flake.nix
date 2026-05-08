@@ -16,7 +16,7 @@
         ({ pkgs, ... }: {
           nixpkgs.overlays = [ (import emacs-overlay) ];
         })
-        ./nixos/configuration.nix
+        ./configuration.nix
       ];
     };
   };

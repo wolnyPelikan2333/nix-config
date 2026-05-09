@@ -301,6 +301,8 @@
     syncthing
     heroic
     isync
+    brave
+    nyxt
     (mu.override { emacs = emacs; })
     # 1. Sam program Emacs z kompilacją natywną
     (pkgs.emacs-pgtk.override {

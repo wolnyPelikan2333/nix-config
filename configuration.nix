@@ -321,6 +321,12 @@
     --use-gl=desktop
   '';
 
+  # Włączenie serwera Emacsa jako usługi użytkownika
+  services.emacs = {
+    enable = true;
+    package = pkgs.emacs; # Upewnij się, że używasz tego samego pakietu co w systemPackages
+  };
+
   ###############################################
   ## ZSH
   ###############################################

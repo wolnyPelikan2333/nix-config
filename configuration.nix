@@ -78,6 +78,9 @@
   boot.loader.timeout = 3;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+
   ###############################################
   ## NETWORK / LOCALE
   ###############################################
@@ -302,7 +305,6 @@
     heroic
     isync
     brave
-    nyxt
     (mu.override { emacs = emacs; })
     # 1. Sam program Emacs z kompilacją natywną
     (pkgs.emacs-pgtk.override {

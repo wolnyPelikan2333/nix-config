@@ -302,6 +302,9 @@
     kitty
     eza
     syncthing
+    waybar
+    wofi
+    hyprpaper
     heroic
     isync
     brave
@@ -325,6 +328,12 @@
   services.emacs = {
     enable = true;
     package = pkgs.emacs; # Upewnij się, że używasz tego samego pakietu co w systemPackages
+  };
+
+  # Włączenie Hyprlanda
+  programs.hyprland = {
+    enable = true;
+    xwayland.enable = true;
   };
 
   ###############################################

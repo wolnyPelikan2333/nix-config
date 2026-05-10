@@ -306,6 +306,8 @@
     wofi
     hyprpaper
     heroic
+    pavucontrol
+    blueman
     isync
     brave
     (mu.override { emacs = emacs; })

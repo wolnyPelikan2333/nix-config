@@ -4,6 +4,19 @@
   lib,
   ...
 }:
+
+# Dodaj to na samym początku pliku, zaraz pod { config, pkgs, lib, ... }:
+let
+myEmacs = (pkgs.emacs-pgtk.override {
+    withNativeCompilation = true;
+    withTreeSitter = true;
+    withXwidgets = false; 
+  }).overrideAttrs (oldAttrs: {
+    # To dodaje fizycznie bibliotekę WebKit do procesu kompilacji
+    buildInputs = oldAttrs.buildInputs ++ [ pkgs.webkitgtk_4_1 ];
+  });
+in
+
 {
   # test nss commit flow
   ###############################################
@@ -248,6 +261,7 @@
   
   environment.systemPackages = with pkgs; [
     kdePackages.okular
+    calibre
     wget
     firefox
     google-chrome
@@ -304,18 +318,14 @@
     syncthing
     waybar
     wofi
+    spotify
     hyprpaper
     heroic
     pavucontrol
     blueman
     isync
     brave
-    (mu.override { emacs = emacs; })
-    # 1. Sam program Emacs z kompilacją natywną
-    (pkgs.emacs-pgtk.override {
-      withNativeCompilation = true;
-      withTreeSitter = true;
-    })
+    myEmacs
   ];
   
 
@@ -329,7 +339,7 @@
   # Włączenie serwera Emacsa jako usługi użytkownika
   services.emacs = {
     enable = true;
-    package = pkgs.emacs; # Upewnij się, że używasz tego samego pakietu co w systemPackages
+    package = myEmacs;
   };
 
   # Włączenie Hyprlanda

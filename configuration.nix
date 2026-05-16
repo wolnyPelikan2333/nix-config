@@ -471,6 +471,12 @@ in
 
   services.fail2ban.enable = true;
 
+  # Sekcja dla Twojego lokalnego AI (zaktualizowana pod nowe Nixpkgs)
+  services.ollama = {
+    enable = true;
+    package = pkgs.ollama-cuda; # To zastępuje starą linijkę z 'acceleration'
+  };
+
   
   ###############################################
   ## STATE

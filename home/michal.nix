@@ -20,8 +20,8 @@
   home.homeDirectory = "/home/michal";
 
   home.sessionVariables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
+    EDITOR = "emacs";
+    VISUAL = "emacs";
   };
 
   programs.fzf.enable = true;

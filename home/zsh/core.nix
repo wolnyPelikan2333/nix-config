@@ -7,6 +7,10 @@
     enable = true;
     enableCompletion = true;
 
+ shellAliases = {
+      pytaj-mape = "pytaj-mape";
+    };   
+
     initContent = lib.mkAfter ''
       # sen — sudo nvim helper
       sen() {

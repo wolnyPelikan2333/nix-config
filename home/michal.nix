@@ -11,8 +11,8 @@
 
     ./zsh/core.nix
     ./zsh/vi-mode.nix
-    ./zsh/vim-indicator.nix
-    ./zsh/prompt.nix
+    #./zsh/vim-indicator.nix
+    #./zsh/prompt.nix
   ];
   my.aliases.enable = true;
 

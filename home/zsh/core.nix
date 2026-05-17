@@ -33,7 +33,7 @@
         tmux new -A -s main
       fi
 
-     --- asystent bazy notatek mapa ---
+    # --- asystent bazy notatek mapa ---
         pytaj-mape() {
           if [ -z "$1" ]; then
               echo "Musisz zadać jakieś pytanie, np: pytaj-mape \"Co mam w notatkach?\""

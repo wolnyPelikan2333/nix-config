@@ -45,23 +45,13 @@
 
         echo "Analizuję całą Mapę (RTX 3050)..."
 
-      # Wstrzykujemy sterowniki GPU i przekazujemy dane strumieniem
-        cat << END_OLLAMA | LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH ${pkgs.ollama}/bin/ollama run llama3
-<system>
-Jesteś precyzyjnym, osobistym asystentem bazy notatek. Twoim zadaniem jest odpowiedzieć na pytanie użytkownika wyłącznie w języku polskim, bazując na dostarczonych notatkach z folderu "mapa". Nie używaj języka angielskiego. Jeśli w notatkach nie ma odpowiedzi, odpowiedz krótko po polsku: "Nie znalazłem takich informacji w Mapie".
-</system>
-
-<context>
+     # Wstrzykujemy sterowniki GPU i przekazujemy dane jako czysty kontekst
+        cat << END_OLLAMA | LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH ${pkgs.ollama}/bin/ollama run llama3 --system "Jesteś polskim asystentem bazy notatek. Twoim jedynym zadaniem jest przeczytanie dostarczonego kontekstu i wyciągnięcie z niego odpowiedzi na pytanie użytkownika. Odpowiadasz wyłącznie po polsku, krótko i na temat. Jeśli w tekście nie ma informacji o chlebie lub medytacji, napisz po polsku: Nie znalazłem tego w Mapie."
+DANE Z BAZY NOTATEK:
 $kontekst
-</context>
 
-<question>
+PYTANIE UŻYTKOWNIKA:
 $*
-</question>
-
-<instruction>
-Odpowiedz na powyższe pytanie użytkownika. Twój tekst musi być w 100% po polsku.
-</instruction>
 END_OLLAMA
       }
 

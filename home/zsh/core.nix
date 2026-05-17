@@ -33,25 +33,28 @@
         tmux new -A -s main
       fi
 
-      # --- asystent bazy notatek mapa ---
-      pytaj-mape() {
-        if [ -z "$1" ]; then
-            echo "Musisz zadać jakieś pytanie, np: pytaj-mape \"Co mam w notatkach?\""
-            return 1
-        fi
+     --- asystent bazy notatek mapa ---
+        pytaj-mape() {
+          if [ -z "$1" ]; then
+              echo "Musisz zadać jakieś pytanie, np: pytaj-mape \"Co mam w notatkach?\""
+              return 1
+          fi
 
-        # Filtrujemy pliki tymczasowe Emacsa bezpośrednio w locie
-        local kontekst=$(${pkgs.findutils}/bin/find ~/mapa -type f ! -name ".*" ! -name "*~" -name "*.org" -exec cat {} +)
+          # Szukamy w plikach .org tylko linii pasujących do słów kluczowych z zapytania
+          # To zapobiegnie zalaniu modelu gigantyczną ilością kodu i konfiguracji
+          local slowo_klucz=$(echo "$1" | awk '{print $1}')
+          local kontekst=$(${pkgs.findutils}/bin/find ~/mapa -type f ! -name ".*" ! -name "*~" -name "*.org" -exec grep -i "$slowo_klucz" {} + 2>/dev/null | head -n 50)
 
-        echo "Analizuję całą Mapę (RTX 3050)..."
+          echo "Analizuję dopasowania w Mapie (RTX 3050)..."
 
-     # Wstrzykujemy sterowniki GPU i przekazujemy dane jako czysty kontekst
-        cat << END_OLLAMA | LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH ${pkgs.ollama}/bin/ollama run llama3 --system "Jesteś polskim asystentem bazy notatek. Twoim jedynym zadaniem jest przeczytanie dostarczonego kontekstu i wyciągnięcie z niego odpowiedzi na pytanie użytkownika. Odpowiadasz wyłącznie po polsku, krótko i na temat. Jeśli w tekście nie ma informacji o chlebie lub medytacji, napisz po polsku: Nie znalazłem tego w Mapie."
-DANE Z BAZY NOTATEK:
+          # Przekazujemy czysty strumień ze ścisłym, uproszczonym żądaniem
+          cat << END_OLLAMA | LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH ${pkgs.ollama}/bin/ollama run llama3
+Użytkownik pyta o: "$*"
+Odpowiedz na to pytanie wyłącznie na podstawie poniższych wycinków z jego notatek.
+ODPOWIEDZ WYŁĄCZNIE PO POLSKU. KROTKÓ I NA TEMAT.
+
+WYCINKI Z NOTATEK:
 $kontekst
-
-PYTANIE UŻYTKOWNIKA:
-$*
 END_OLLAMA
       }
 

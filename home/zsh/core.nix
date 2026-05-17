@@ -45,15 +45,23 @@
 
         echo "Analizuję całą Mapę (RTX 3050)..."
 
-        # Wstrzykujemy sterowniki GPU i przekazujemy dane strumieniem
+      # Wstrzykujemy sterowniki GPU i przekazujemy dane strumieniem
         cat << END_OLLAMA | LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH ${pkgs.ollama}/bin/ollama run llama3
-Jesteś osobistym asystentem. Masz dostęp do moich notatek z folderu mapa, które załączam poniżej. Odpowiedz na pytanie użytkownika, bazując na tych informacjach. Odpowiedz WYŁĄCZNIE po polsku.
+<system>
+Jesteś precyzyjnym, osobistym asystentem bazy notatek. Twoim zadaniem jest odpowiedzieć na pytanie użytkownika wyłącznie w języku polskim, bazując na dostarczonych notatkach z folderu "mapa". Nie używaj języka angielskiego. Jeśli w notatkach nie ma odpowiedzi, odpowiedz krótko po polsku: "Nie znalazłem takich informacji w Mapie".
+</system>
 
---- NOTATKI ---
+<context>
 $kontekst
----
+</context>
 
-Pytanie: $*
+<question>
+$*
+</question>
+
+<instruction>
+Odpowiedz na powyższe pytanie użytkownika. Twój tekst musi być w 100% po polsku.
+</instruction>
 END_OLLAMA
       }
 

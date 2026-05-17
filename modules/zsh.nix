@@ -12,7 +12,7 @@
     syntaxHighlighting.enable = true;
 
     dotDir = "${config.xdg.configHome}/zsh";
-    defaultKeymap = "viins";
+    defaultKeymap = "emacs";
 
     sessionVariables = {
       MPC_HOST = "127.0.0.1";
@@ -209,6 +209,12 @@
     # PROMPT — TYLKO PROMPT (HOME MANAGER)
     # ==========================================================
     initExtra = ''
+      # 🌟 ZMIANA 2: Żelazne wymuszenie mapy emacsa przy inicjalizacji promptu
+      bindkey -e
+
+      # 🌟 KLUCZOWA ZMIANA: Włączenie dynamicznego wykonywania funkcji w PROMPT
+      setopt PROMPT_SUBST
+
       git_repo_hint() {
         git rev-parse --is-inside-work-tree &>/dev/null || return
 

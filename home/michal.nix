@@ -180,8 +180,6 @@ Pytanie: $*
 END_OLLAMA
 '')
 ];
-   
-  ];
-
+ 
   home.stateVersion = "25.05";
 }

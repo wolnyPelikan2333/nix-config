@@ -159,18 +159,17 @@
     thunderbird
     superfile
     (writeShellScriptBin "pytaj-mape" ''
-    if [ -z "$1" ]; then
-        echo "Musisz zadać jakieś pytanie, np: pytaj-mape \"Co mam w notatkach?\""
-        exit 1
-    fi
+  if [ -z "$1" ]; then
+      echo "Musisz zadać jakieś pytanie, np: pytaj-mape \"Co mam w notatkach?\""
+      exit 1
+  fi
 
-    # Pobieramy zawartość plików .org z Twojego folderu domowego
-    KONTEKST=$(${findutils}/bin/find ~/mapa -type f ! -name ".*" ! -name "*~" -name "*.org" -exec cat {} +)
+  KONTEKST=$(${findutils}/bin/find ~/mapa -type f ! -name ".*" ! -name "*~" -name "*.org" -exec cat {} +)
 
-    echo "Analizuję całą Mapę (RTX 3050)..."
+  echo "Analizuję całą Mapę (RTX 3050)..."
 
-    # Przekazujemy tekst strumieniem bezpośrednio do Ollamy
-    cat << END_OLLAMA | ${ollama}/bin/ollama run llama3
+  # Wstrzykujemy sterowniki graficzne bezpośrednio do środowiska uruchomieniowego Ollamy
+  cat << END_OLLAMA | LD_LIBRARY_PATH=/run/opengl-driver/lib:$LD_LIBRARY_PATH ${ollama}/bin/ollama run llama3
 Jesteś osobistym asystentem. Masz dostęp do moich notatek z folderu mapa, które załączam poniżej. Odpowiedz na pytanie użytkownika, bazując na tych informacjach. Odpowiedz WYŁĄCZNIE po polsku.
 
 --- NOTATKI ---
@@ -179,7 +178,7 @@ $KONTEKST
 
 Pytanie: $*
 END_OLLAMA
-  '')
+'')
 ];
    
   ];

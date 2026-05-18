@@ -330,6 +330,7 @@ in
     isync
     brave
     myEmacs
+    direnv
   ];
   
 

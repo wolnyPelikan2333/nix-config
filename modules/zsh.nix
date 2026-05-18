@@ -237,6 +237,9 @@
 
       PROMPT=$'\n%{\e[38;5;220m%}%~%{\e[0m%}$(git_repo_hint)\n%{\e[38;5;81m%}❯%{\e[0m%} '
 
+      # Budzimy automatyczne środowiska projektowe
+      eval "$(direnv hook zsh)"
+
       # ----------------------------------------------------------
       # 🌟 FAZA 2: DOCIĄGNIĘCIE NARZĘDZI I BLOKADA EMACSA
       # ----------------------------------------------------------

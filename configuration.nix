@@ -5,9 +5,11 @@
   ...
 }:
 
-# Dodaj to na samym początku pliku, zaraz pod { config, pkgs, lib, ... }:
+# ==========================================================
+# 🌟 MIEJSCE NA TWOJE DEKLARACJE (LET ... IN)
+# ==========================================================
 let
-myEmacs = (pkgs.emacs-pgtk.override {
+  myEmacs = (pkgs.emacs-unstable-pgtk.override {
     withNativeCompilation = true;
     withTreeSitter = true;
     withXwidgets = false; 
@@ -17,6 +19,9 @@ myEmacs = (pkgs.emacs-pgtk.override {
   });
 in
 
+# ==========================================================
+# GŁÓWNA KONFIGURACJA SYSTEMU
+# ==========================================================
 {
   # test nss commit flow
   ###############################################
@@ -27,7 +32,6 @@ in
     ./hardware-configuration.nix
     ./modules/packages.nix
   ];
-
 
  services.syncthing = {
     enable = true;

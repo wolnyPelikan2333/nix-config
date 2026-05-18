@@ -206,13 +206,9 @@
     '';
 
     # ==========================================================
-    # PROMPT — TYLKO PROMPT (HOME MANAGER)
+    # PROMPT I TUNING — WYMUSZENIE EMACSA NA KOŃCU PLIKU
     # ==========================================================
     initExtra = ''
-      # 🌟 ZMIANA 2: Żelazne wymuszenie mapy emacsa przy inicjalizacji promptu
-      bindkey -e
-
-      # 🌟 KLUCZOWA ZMIANA: Włączenie dynamicznego wykonywania funkcji w PROMPT
       setopt PROMPT_SUBST
 
       git_repo_hint() {
@@ -235,10 +231,24 @@
 
         echo " ($branch$hint)"
       }
-       # PATH dla Zsh
+
+      # PATH dla Zsh
       export PATH="$HOME/.config/emacs/bin:$PATH"
 
       PROMPT=$'\n%{\e[38;5;220m%}%~%{\e[0m%}$(git_repo_hint)\n%{\e[38;5;81m%}❯%{\e[0m%} '
+
+      # ----------------------------------------------------------
+      # 🌟 FAZA 2: DOCIĄGNIĘCIE NARZĘDZI I BLOKADA EMACSA
+      # ----------------------------------------------------------
+      
+      # Budzimy zoxide (inteligentne cd jako komenda 'z')
+      eval "$(zoxide init zsh)"
+
+      # Budzimy fzf (interaktywna historia pod Ctrl+R)
+      source <(fzf --zsh)
+
+      # Żelazne, ostateczne wymuszenie mapy emacsa (zawsze na samym dole!)
+      bindkey -e
     '';
   };
 }

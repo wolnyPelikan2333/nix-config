@@ -330,6 +330,7 @@ in
     isync
     brave
     myEmacs
+    emacsPackages.gptel
     direnv
     # 🌟 TWOJA APKA WPIĘTA NA STAŁE DO SYSTEMU:
     (callPackage ./modules/mapa-search/mapa-search.nix {})

@@ -9,14 +9,19 @@
 # 🌟 MIEJSCE NA TWOJE DEKLARACJE (LET ... IN)
 # ==========================================================
 let
-  myEmacs = (pkgs.emacs-unstable-pgtk.override {
+  # 1. Budujemy bazowego Emacsa ze wszystkimi flagami kompilacji
+  emacsBase = (pkgs.emacs-unstable-pgtk.override {
     withNativeCompilation = true;
     withTreeSitter = true;
     withXwidgets = false; 
   }).overrideAttrs (oldAttrs: {
-    # To dodaje fizycznie bibliotekę WebKit do procesu kompilacji
     buildInputs = oldAttrs.buildInputs ++ [ pkgs.webkitgtk_4_1 ];
   });
+
+  # 2. Opakowujemy go w emacsWithPackages i wstrzykujemy najnowszy gptel z overlay'a
+  myEmacs = (pkgs.emacsPackagesFor emacsBase).emacsWithPackages (epkgs: [
+    epkgs.gptel
+  ]);
 in
 
 # ==========================================================

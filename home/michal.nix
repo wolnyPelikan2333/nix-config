@@ -19,6 +19,8 @@
   home.username = "michal";
   home.homeDirectory = "/home/michal";
 
+  home.file.".emacs.d/init.el".source = ../init.el;
+
   home.sessionVariables = {
     EDITOR = "emacs";
     VISUAL = "emacs";

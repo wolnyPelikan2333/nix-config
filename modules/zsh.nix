@@ -165,6 +165,7 @@
       alias lab="cd /home/michal/lab/"
       alias nss-check="/home/michal/git-sterile/scripts/nss-check"
       alias okbuild="test -f /etc/nixos/OK_TO_BUILD && echo OK || echo NIE_BUDUJ"
+      alias nss="nix-rentgen"
 
       # ----------------------------------------------------------
       # LSD — lepsze ls (terminal / human only)

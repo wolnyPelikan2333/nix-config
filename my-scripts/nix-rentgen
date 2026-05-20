@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Definiujemy tymczasowy plik na logi
+LOG_FILE="/tmp/nixos-build-rentgen.log"
+
+echo "========================================="
+echo "🚀 Uruchamiam NixOS Build przez Rentgen..."
+echo "========================================="
+
+# Odpalamy przebudowę systemu i przekierowujemy strumień błędów (2>&1) do tee
+nh os switch /etc/nixos#nixos 2>&1 | tee $LOG_FILE
+
+echo -e "\n========================================="
+echo "🔍 ANALIZA RENTGENOWSKA LOGÓW..."
+echo "========================================="
+
+# Szukamy śladów błędów lub nieudanych asercji
+if grep -qi "error:" $LOG_FILE || grep -qi "failed" $LOG_FILE; then
+    echo "❌ WYKRYTO BŁĘDY W BUILDZIE!"
+    echo "Oto kluczowe linie, które mogły położyć system:"
+    echo "-----------------------------------------"
+    grep -in -E "error|failed|assertion|resumeDevice" $LOG_FILE
+    echo "-----------------------------------------"
+else
+    echo "✅ Czysto! System przebudowany pomyślnie."
+fi
+
+# Czyszczenie pliku tymczasowego
+rm -f $LOG_FILE

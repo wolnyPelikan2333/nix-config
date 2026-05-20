@@ -407,6 +407,7 @@ in
   ###############################################
 
   environment.shellAliases = {
+    nss = "nix-rentgen";
     ns = "nh os switch /etc/nixos#nixos";
     nt = "nh os test /etc/nixos#nixos";
     nb = "nh os boot /etc/nixos#nixos";

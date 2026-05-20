@@ -1,0 +1,2 @@
+#!/bin/sh
+echo "Siema Michał! Twój nowy system skryptów w NixOS działa jak złoto!"

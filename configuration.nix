@@ -150,6 +150,7 @@ in
     QT_QPA_PLATFORM = "wayland;xcb";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
     CHROME_EXTRA_FLAGS = "--use-gl=desktop";
+    PATH = [ "$HOME/.config/emacs/bin" ];
   };
 
   console.keyMap = "pl2";

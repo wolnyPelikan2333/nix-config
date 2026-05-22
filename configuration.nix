@@ -78,9 +78,9 @@ in
   ###############################################
 
   environment.variables = {
-    EDITOR = "nvim";
-    VISUAL = "nvim";
-    SUDO_EDITOR = "nvim";
+    EDITOR = "emacs";
+    VISUAL = "emacs";
+    SUDO_EDITOR = "emacs";
   };
 
   environment.shells = [ pkgs.zsh ];
@@ -340,8 +340,16 @@ in
     myEmacs
     emacsPackages.gptel
     direnv
+    nvd
     # 🌟 TWOJA APKA WPIĘTA NA STAŁE DO SYSTEMU:
     (callPackage ./modules/mapa-search/mapa-search.nix {})
+    # 🛠️ TWÓJ WŁASNY WARSZTAT SKRYPTÓW RZEMIEŚLNICZYCH:
+    (writeShellScriptBin "pytaj-mape" (builtins.readFile ./my-scripts/pytaj-mape))
+    (writeShellScriptBin "nix-rentgen" (builtins.readFile ./my-scripts/nix-rentgen))
+    (writeShellScriptBin "sesja-start" (builtins.readFile ./my-scripts/sesja-start))
+    (writeShellScriptBin "sys-status" (builtins.readFile ./my-scripts/sys-status))
+    (writeShellScriptBin "docs"        (builtins.readFile ./my-scripts/docs))
+    (writeShellScriptBin "nix-historia" (builtins.readFile ./my-scripts/nix-historia)) # 🌟 NOWOŚĆ
   ];
   
 

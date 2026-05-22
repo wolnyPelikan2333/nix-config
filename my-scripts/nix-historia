@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROFILES_DIR="/nix/var/nix/profiles"
+
+# Funkcja pomocnicza: pobiera listę samych numerów generacji (posortowaną rosnąco)
+get_generation_numbers() {
+    find "$PROFILES_DIR" -maxdepth 1 -name "system-*-link" | \
+        sed -E 's/.*system-([0-9]+)-link$/\1/' | \
+        sort -n
+}
+
+# Funkcja wykonująca kaskadowe porównanie nvd dla podanej listy numerów generacji
+run_cascade_diff() {
+    local gens_list=("$@")
+    local len=${#gens_list[@]}
+
+    if [ "$len" -lt 2 ]; then
+        echo "❌ Za mało generacji do porównania (potrzeba minimum 2)."
+        return 1
+    fi
+
+    echo -e "\n========================================="
+    echo "📊 KASKADOWY PODGLĄD ZMIAN (Generacja po generacji):"
+    echo "========================================="
+
+    # 🛠️ KLASYCZNA PĘTLA BASHOWA (Przyjazna dla parsera Emacsa)
+    local max_idx=$((len - 2))
+    for i in $(seq 0 "$max_idx"); do
+        local g_old="${gens_list[i]}"
+        local g_new="${gens_list[i+1]}"
+        
+        local path_old="$PROFILES_DIR/system-${g_old}-link"
+        local path_new="$PROFILES_DIR/system-${g_new}-link"
+
+        echo -e "\n🔹 [KROK $((i+1))/$((len-1))] Różnice: Generacja $g_old ➔ Generacja $g_new"
+        echo "----------------------------------------------------------------------"
+        nvd diff "$path_old" "$path_new"
+    done
+}
+
+# --- TRYBY DZIAŁANIA ---
+
+tryb_ostatnie_n() {
+    echo -n "🔢 Ile generacji wstecz chcesz sprawdzić?: "
+    read -r count
+    if [[ ! "$count" =~ ^[0-9]+$ ]] || [ "$count" -lt 1 ]; then
+        echo "❌ To nie jest poprawna liczba."
+        return 1
+    fi
+
+    # Pobieramy wszystkie i bierzemy ostatnie (count + 1, żeby mieć punkt odniesienia)
+    local all_gens=($(get_generation_numbers))
+    local total=${#all_gens[@]}
+    
+    local start_idx=$((total - count - 1))
+    if [ "$start_idx" -lt 0 ]; then start_idx=0; fi
+
+    local selected_gens=("${all_gens[@]:start_idx}")
+    run_cascade_diff "${selected_gens[@]}"
+}
+
+tryb_skok_do_x() {
+    echo -n "🎯 Podaj numer starszej generacji (od której zacząć): "
+    read -r target
+    if [[ ! "$target" =~ ^[0-9]+$ ]]; then
+        echo "❌ To nie jest poprawny numer generacji."
+        return 1
+    fi
+
+    if [ ! -L "$PROFILES_DIR/system-${target}-link" ]; then
+        echo "❌ Generacja $target nie istnieje w systemie."
+        return 1
+    fi
+
+    local all_gens=($(get_generation_numbers))
+    local selected_gens=()
+    local found=false
+
+    for gen in "${all_gens[@]}"; do
+        if [ "$gen" -eq "$target" ]; then
+            found=true
+        fi
+        if [ "$found" = true ]; then
+            selected_gens+=("$gen")
+        fi
+    done
+
+    run_cascade_diff "${selected_gens[@]}"
+}
+
+tryb_fzf_wybor() {
+    echo "💡 Użyj [SPACJI], aby zaznaczyć wiele generacji, zatwierdź [ENTEREM]."
+    echo "----------------------------------------------------------------------"
+    
+    # Generujemy listę dla fzf z ładnymi szczegółami (data utworzenia symlinku)
+    local chosen
+    chosen=$(find "$PROFILES_DIR" -maxdepth 1 -name "system-*-link" -exec stat -c "%y | %n" {} \; | \
+        sed -E "s|$PROFILES_DIR/system-||" | \
+        sed -E 's/-link//' | \
+        sort -k3 -n | \
+        fzf -m --prompt="Wybierz generacje> " --header="Zaznacz spacją min. 2 pozycje chronologicznie" | \
+        awk '{print $1}')
+
+    if [ -z "$chosen" ]; then
+        echo "❌ Nic nie wybrano."
+        return 1
+    fi
+
+    # Pakujemy wybrane numery do tablicy (fzf zwraca je w kolejności zaznaczania, więc sortujemy chronologicznie)
+    local selected_gens=($(echo "$chosen" | sort -n))
+    
+    if [ "${#selected_gens[@]}" -lt 2 ]; then
+        echo "❌ Wybierz przynajmniej dwie generacje do porównania sekwencyjnego."
+        return 1
+    fi
+
+    run_cascade_diff "${selected_gens[@]}"
+}
+
+# --- GŁÓWNE MENU (w stylu C-c m) ---
+clear
+echo "========================================="
+echo "🧭 WARSZTAT HISTORII NIXOS (NVD)"
+echo "========================================="
+echo "1. Ostatnie N generacji (kaskadowo)"
+echo "2. Skok do generacji X (wstecz do dzisiaj, krok po kroku)"
+echo "3. Wybierz generacje z listy fzf (porównanie sekwencyjne)"
+echo "--------------------------------========="
+echo -n "⚙️ Wybierz opcję [1-3]: "
+read -r opcja
+
+case "$opcja" in
+    1) tryb_ostatnie_n ;;
+    2) tryb_skok_do_x ;;
+    3) tryb_fzf_wybor ;;
+    *) echo "❌ Nieznana opcja. Zamykam warsztat." ;;
+esac

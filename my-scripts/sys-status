@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "===== SYSTEM STATUS ====="
+echo
+
+echo "📊 Uptime:"
+uptime | sed 's/^/  /'
+echo
+
+echo "💾 Disk /:"
+df -h / | sed '1d;s/^/  /'
+echo
+
+echo "🔐 Repo (/etc/nixos):"
+
+set +e
+modified=$(git -C /etc/nixos status --porcelain 2>/dev/null | grep -c '^ M')
+untracked=$(git -C /etc/nixos status --porcelain 2>/dev/null | grep -c '^??')
+set -e
+
+if [ "$modified" -eq 0 ] && [ "$untracked" -eq 0 ]; then
+  echo "  Stan: CLEAN ✔"
+else
+  echo "  Stan: DIRTY ✖"
+  echo "    M  $modified"
+  echo "    ?? $untracked"
+fi
+
+set +e
+ahead=$(git -C /etc/nixos rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
+behind=$(git -C /etc/nixos rev-list --count HEAD..@{u} 2>/dev/null || echo 0)
+set -e
+
+echo
+echo "  Commit: ahead=$ahead behind=$behind"
+echo
+git -C /etc/nixos log -1 --pretty='  %h  "%s"' 2>/dev/null || true

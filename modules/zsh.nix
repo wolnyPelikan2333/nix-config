@@ -29,11 +29,11 @@
     };
 
     # ==========================================================
-    # INIT CONTENT — funkcje, aliasy, narzędzia
+    # INIT CONTENT — nowoczesne, połączone środowisko powłoki
     # ==========================================================
     initContent = ''
       # ----------------------------------------------------------
-      # PODSTAWY
+      # PODSTAWY I SYSTEMOWY PATH
       # ----------------------------------------------------------
       autoload -Uz colors
       colors
@@ -51,167 +51,17 @@
       }
 
       # ----------------------------------------------------------
-      # HISTORIA
+      # OPCJE HISTORII
       # ----------------------------------------------------------
       setopt APPEND_HISTORY
       setopt INC_APPEND_HISTORY
       setopt HIST_REDUCE_BLANKS
       setopt HIST_SAVE_NO_DUPS
-
-      # ----------------------------------------------------------
-      # SESJA — START
-      # ----------------------------------------------------------
-      sesja-start() {
-        echo "🧭 START SESJI"
-        echo
-
-        if [ -f /etc/nixos/SESJE/AKTYWNA.md ]; then
-          echo "📄 Źródło startu:"
-          echo "  → /etc/nixos/SESJE/AKTYWNA.md"
-          echo
-          nvim /etc/nixos/SESJE/AKTYWNA.md
-        else
-          echo "❌ BŁĄD STARTU SESJI"
-          echo
-          echo "Brak pliku:"
-          echo "  /etc/nixos/SESJE/AKTYWNA.md"
-          return 1
-        fi
-      }
-
-      # ----------------------------------------------------------
-      # SYSTEM STATUS
-      # ----------------------------------------------------------
-      sys-status() {
-        echo "===== SYSTEM STATUS ====="
-        echo
-
-        echo "📊 Uptime:"
-        uptime | sed 's/^/  /'
-        echo
-
-        echo "💾 Disk /:"
-        df -h / | sed '1d;s/^/  /'
-        echo
-
-        echo "🔐 Repo (/etc/nixos):"
-
-        local modified untracked
-        modified=$(git -C /etc/nixos status --porcelain | grep -c '^ M')
-        untracked=$(git -C /etc/nixos status --porcelain | grep -c '^??')
-
-        if [ "$modified" -eq 0 ] && [ "$untracked" -eq 0 ]; then
-          echo "  Stan: CLEAN ✔"
-        else
-          echo "  Stan: DIRTY ✖"
-          echo "    M  $modified"
-          echo "    ?? $untracked"
-        fi
-
-        local ahead behind
-        ahead=$(git -C /etc/nixos rev-list --count @{u}..HEAD 2>/dev/null || echo 0)
-        behind=$(git -C /etc/nixos rev-list --count HEAD..@{u} 2>/dev/null || echo 0)
-
-        echo
-        echo "  Commit: ahead=$ahead behind=$behind"
-        echo
-        git -C /etc/nixos log -1 --pretty='  %h  "%s"' 2>/dev/null
-      }
-
-      # ----------------------------------------------------------
-      # DOCS
-      # ----------------------------------------------------------
-      docs() {
-        local file
-        file=$(cd /etc/nixos/docs || return
-          find . -type f |
-          sed 's|^\./||' |
-          fzf --prompt="docs> " \
-              --preview 'bat --style=numbers --color=always {} 2>/dev/null || sed -n "1,200p" {}'
-        )
-        [[ -n "$file" ]] && nvim "/etc/nixos/docs/$file"
-      }
-
-      # ----------------------------------------------------------
-      # NBUILD
-      # ----------------------------------------------------------
-      nbuild() {
-        sudo nixos-rebuild build --flake /etc/nixos
-      }
-
-      # ----------------------------------------------------------
-      # BROOT
-      # ----------------------------------------------------------
-      br() {
-        local cmd cmd_file
-        cmd_file=$(mktemp)
-        if broot --outcmd "$cmd_file" "$@"; then
-          cmd=$(<"$cmd_file")
-          rm -f "$cmd_file"
-          eval "$cmd"
-        else
-          rm -f "$cmd_file"
-          return 1
-        fi
-      }
-
-      # ----------------------------------------------------------
-      # ALIASY
-      # ----------------------------------------------------------
-      alias w="w3m"
-      alias nixman="w3m https://nixos.org/manual/nixos/stable/"
-      alias nixerr="less /etc/nixos/docs/ściągi/nix/nix-build-errors.md"
-      alias st="sys-status"
-      alias lab="cd /home/michal/lab/"
-      alias nss-check="/home/michal/git-sterile/scripts/nss-check"
-      alias okbuild="test -f /etc/nixos/OK_TO_BUILD && echo OK || echo NIE_BUDUJ"
-      alias nss="nix-rentgen"
-
-      # ----------------------------------------------------------
-      # LSD — lepsze ls (terminal / human only)
-      # ----------------------------------------------------------
-      alias ls='lsd'
-      alias ll='lsd -l'
-      alias la='lsd -a'
-      alias lla='lsd -la'
-
-      # orientacja w strukturze
-      alias lt='lsd --tree'
-      alias l2='lsd --tree --depth 2'
-
-      # fallback klasyczny (skrypty / debug)
-      alias ls0='/bin/ls'
-
-
-      # ----------------------------------------------------------
-      # GIT — aliasy
-      # ----------------------------------------------------------
-      alias g='git'
-      alias gs='git status -sb'
-      alias gl='git log --oneline --graph --decorate -10'
-      alias gba='git branch -a'
-      alias gco='git checkout'
-      alias gcb='git checkout -b'
-      alias ga='git add'
-      alias gaa='git add -A'
-      alias gd='git diff'
-      alias gdc='git diff --cached'
-      alias gr='git restore'
-      alias grs='git restore --staged'
-      alias gc='git commit'
-      alias gcm='git commit -m'
-      alias gp='git push'
-      alias gpl='git pull --ff-only'
-      alias grh='git reset --hard'
-
-    '';
-
-    # ==========================================================
-    # PROMPT I TUNING — WYMUSZENIE EMACSA NA KOŃCU PLIKU
-    # ==========================================================
-    initExtra = ''
       setopt PROMPT_SUBST
 
+      # ----------------------------------------------------------
+      # PROMPT (Zintegrowany indykator Git)
+      # ----------------------------------------------------------
       git_repo_hint() {
         git rev-parse --is-inside-work-tree &>/dev/null || return
 
@@ -233,22 +83,73 @@
         echo " ($branch$hint)"
       }
 
-      # PATH dla Zsh
-      export PATH="$HOME/.config/emacs/bin:$PATH"
-
       PROMPT=$'\n%{\e[38;5;220m%}%~%{\e[0m%}$(git_repo_hint)\n%{\e[38;5;81m%}❯%{\e[0m%} '
 
-      # Budzimy automatyczne środowiska projektowe
+      # ----------------------------------------------------------
+      # INTEGRACJA BROOT (Funkcja powłoki)
+      # ----------------------------------------------------------
+      br() {
+        local cmd cmd_file
+        cmd_file=$(mktemp)
+        if broot --outcmd "$cmd_file" "$@"; then
+          cmd=$(<"$cmd_file")
+          rm -f "$cmd_file"
+          eval "$cmd"
+        else
+          rm -f "$cmd_file"
+          return 1
+        fi
+      }
+
+      # ----------------------------------------------------------
+      # ALIASY (Skróty do binariów oraz nowych skryptów)
+      # ----------------------------------------------------------
+      alias w="w3m"
+      alias nixman="w3m https://nixos.org/manual/nixos/stable/"
+      alias nixerr="less /etc/nixos/docs/ściągi/nix/nix-build-errors.md"
+      alias st="sys-status"
+      alias sys-status="sys-status"
+      alias sesja-start="sesja-start"
+      alias docs="docs"
+      alias lab="cd /home/michal/lab/"
+      alias nss-check="/home/michal/git-sterile/scripts/nss-check"
+      alias okbuild="test -f /etc/nixos/OK_TO_BUILD && echo OK || echo NIE_BUDUJ"
+      alias nss="nix-rentgen"
+      alias hst="nix-historia" # 🌟 NOWY ALIAS DO HISTORII
+
+      # LSD — nowoczesne zamienniki ls
+      alias ls='lsd'
+      alias ll='lsd -l'
+      alias la='lsd -a'
+      alias lla='lsd -la'
+      alias lt='lsd --tree'
+      alias l2='lsd --tree --depth 2'
+      alias ls0='/bin/ls'
+
+      # GIT — aliasy rzemieślnicze
+      alias g='git'
+      alias gs='git status -sb'
+      alias gl='git log --oneline --graph --decorate -10'
+      alias gba='git branch -a'
+      alias gco='git checkout'
+      alias gcb='git checkout -b'
+      alias ga='git add'
+      alias gaa='git add -A'
+      alias gd='git diff'
+      alias gdc='git diff --cached'
+      alias gr='git restore'
+      alias grs='git restore --staged'
+      alias gc='git commit'
+      alias gcm='git commit -m'
+      alias gp='git push'
+      alias gpl='git pull --ff-only'
+      alias grh='git reset --hard'
+
+      # ----------------------------------------------------------
+      # AKTYWACJA ZEWNĘTRZNYCH NARZĘDZI I MAPY EMACSA
+      # ----------------------------------------------------------
       eval "$(direnv hook zsh)"
-
-      # ----------------------------------------------------------
-      # 🌟 FAZA 2: DOCIĄGNIĘCIE NARZĘDZI I BLOKADA EMACSA
-      # ----------------------------------------------------------
-      
-      # Budzimy zoxide (inteligentne cd jako komenda 'z')
       eval "$(zoxide init zsh)"
-
-      # Budzimy fzf (interaktywna historia pod Ctrl+R)
       source <(fzf --zsh)
 
       # Żelazne, ostateczne wymuszenie mapy emacsa (zawsze na samym dole!)

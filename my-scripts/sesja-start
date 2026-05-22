@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🧭 START SESJI"
+echo
+
+if [ -f /etc/nixos/SESJE/AKTYWNA.md ]; then
+  echo "📄 Źródło startu:"
+  echo "  → /etc/nixos/SESJE/AKTYWNA.md"
+  echo
+  nvim /etc/nixos/SESJE/AKTYWNA.md
+else
+  echo "❌ BŁĄD STARTU SESJI"
+  echo
+  echo "Brak pliku:"
+  echo "  /etc/nixos/SESJE/AKTYWNA.md"
+  exit 1
+fi

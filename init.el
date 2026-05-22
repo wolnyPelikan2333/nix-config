@@ -310,3 +310,12 @@
 
   ;; 4. Dodaj aktywny region jako kontekst
   (define-key org-mode-map (kbd "C-c g c") 'gptel-add))
+;; ==========================================
+;; INTERAKTYWNY RENTGEN (KLIKALNE BŁĘDY NIX)
+;; ==========================================
+(with-eval-after-load 'compile
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(nixos "^error: .* at \\([^ \t\n:]+\\):\\([0-9]+\\):\\([0-9]+\\)$" 1 2 3))
+  (add-to-list 'compilation-error-regexp-alist 'nixos))
+
+(add-hook 'vterm-mode-hook 'compilation-shell-minor-mode)

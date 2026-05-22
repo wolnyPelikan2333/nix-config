@@ -7,6 +7,10 @@ echo "========================================="
 echo "🚀 Uruchamiam NixOS Build przez Rentgen..."
 echo "========================================="
 
+# 📦 ZABEZPIECZAMY ŚCIEŻKĘ STAREJ GENERACJI
+# Czytamy dokąd prowadzi symlink aktualnego systemu
+OLD_SYS=$(readlink -f /run/current-system)
+
 # Odpalamy przebudowę systemu i przekierowujemy strumień błędów (2>&1) do tee
 nh os switch /etc/nixos#nixos 2>&1 | tee $LOG_FILE
 
@@ -21,8 +25,23 @@ if grep -qi "error:" $LOG_FILE || grep -qi "failed" $LOG_FILE; then
     echo "-----------------------------------------"
     grep -in -E "error|failed|assertion|resumeDevice" $LOG_FILE
     echo "-----------------------------------------"
+    rm -f $LOG_FILE
+    exit 1
 else
     echo "✅ Czysto! System przebudowany pomyślnie."
+    
+    # 📊 PODGLĄD GENERACJI SYSTEMU (NVD)
+    # Sprawdzamy nową ścieżkę systemu po udanym switchu
+    NEW_SYS=$(readlink -f /run/current-system)
+    
+    if [ "$OLD_SYS" != "$NEW_SYS" ]; then
+        echo -e "\n========================================="
+        echo "📦 RÓŻNICE W GENERACJACH SYSTEMU:"
+        echo "========================================="
+        nvd diff "$OLD_SYS" "$NEW_SYS"
+    else
+        echo -e "\nℹ️ Brak zmian w pakietach (generacja systemu się nie zmieniła)."
+    fi
 fi
 
 # Czyszczenie pliku tymczasowego

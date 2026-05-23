@@ -78,9 +78,9 @@ in
   ###############################################
 
   environment.variables = {
-    EDITOR = "emacs";
-    VISUAL = "emacs";
-    SUDO_EDITOR = "emacs";
+    EDITOR = "emacsclient -nw";
+    VISUAL = "emacsclient -nw";
+    SUDO_EDITOR = "emacsclient -nw";
   };
 
   environment.shells = [ pkgs.zsh ];

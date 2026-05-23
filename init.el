@@ -373,3 +373,16 @@
 ;; Włączenie obsługi klikalnych linków (OSC 8) w vtermie
 (with-eval-after-load 'vterm
   (add-hook 'vterm-mode-hook #'goto-address-mode))
+
+(defun my/vterm-open-file-with-path ()
+  "Otwiera plik spod kursora, łącząc go z aktualną ścieżką z vterma."
+  (interactive)
+  (let ((filename (thing-at-point 'filename t)))
+    (if filename
+        (let ((full-path (expand-file-name filename vterm-tramp-default-directory)))
+          (vterm-copy-mode -1) ; Wyjdź automatycznie z trybu kopiowania
+          (find-file full-path))
+      (message "Nie znaleziono nazwy pliku pod kursorem."))))
+
+(with-eval-after-load 'vterm
+  (define-key vterm-copy-mode-map (kbd "RET") #'my/vterm-open-file-with-path))

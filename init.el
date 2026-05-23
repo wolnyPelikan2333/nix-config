@@ -354,3 +354,22 @@
   (add-to-list 'compilation-error-regexp-alist 'nixos))
 
 (add-hook 'vterm-mode-hook 'compilation-shell-minor-mode)
+
+(defun my/vterm-open-current-file ()
+  "Otwiera plik pod kursorem w trybie vterm-copy-mode."
+  (interactive)
+  (let ((file (ffap-file-at-point)))
+    (if file
+        (progn
+          (vterm-copy-mode -1) ; Wyłącz tryb kopiowania przed otwarciem
+          (find-file file))
+      (message "Nie znaleziono ścieżki pliku pod kursorem."))))
+
+;; Podpięcie pod mapę trybu kopiowania w vtermie
+(with-eval-after-load 'vterm
+  (define-key vterm-copy-mode-map (kbd "RET") #'my/vterm-open-current-file)
+  (define-key vterm-copy-mode-map (kbd "o") #'my/vterm-open-current-file))
+
+;; Włączenie obsługi klikalnych linków (OSC 8) w vtermie
+(with-eval-after-load 'vterm
+  (add-hook 'vterm-mode-hook #'goto-address-mode))

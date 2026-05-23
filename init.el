@@ -178,6 +178,38 @@
     (my/create-prayer-file "rachunek" "Rachunek Sumienia" "rachunek")
     (message "System Mapa: Czas na rachunek sumienia.")))
 
+(defun my/rozaniec ()
+  "Tworzy nowy plik Różańca Medytacyjnego na podstawie szablonu."
+  (interactive)
+  (let* ((dzis (format-time-string "%d-%m-%Y %a"))
+         (czesc (read-string "Część różańca: "))
+         (sciezka-szablon "~/mapa/Modlitwy/templates/rozaniec.org")
+         (sciezka-cel (expand-file-name (format "~/mapa/Modlitwy/%s-rozaniec.org" (format-time-string "%Y-%m-%d"))))
+         (szablon ""))
+    
+    ;; Pobranie zawartości szablonu, jeśli istnieje
+    (if (file-exists-p sciezka-szablon)
+        (with-temp-buffer
+          (insert-file-contents sciezka-szablon)
+          ;; Podmiana zmiennych w szablonie
+          (goto-char (point-min))
+          (while (search-forward "%<%d-%m-%Y %a>" nil t) (replace-match dzis t t))
+          (goto-char (point-min))
+          (while (search-forward "%^{Część różańca}" nil t) (replace-match czesc t t))
+          ;; Usunięcie znacznika kursora %? jeśli tam był
+          (goto-char (point-min))
+          (while (search-forward "%?" nil t) (replace-match "" t t))
+          (setq szablon (buffer-string)))
+      (error "Brak pliku szablonu: %s" sciezka-szablon))
+
+    ;; Zapisanie gotowego pliku i otwarcie go
+    (find-file sciezka-cel)
+    (insert szablon)
+    (goto-char (point-min))
+    ;; Ustawienie kursora pod nagłówkiem Intencja
+    (search-forward "* Intencja" nil t)
+    (forward-line 4)))
+
 ;; ==========================================
 ;; 3. DASHBOARD I NARZĘDZIA
 ;; ==========================================
@@ -225,12 +257,14 @@
   ^MAPA - Centrum Dowodzenia^
   -----------------------------------------
   _m_: Medytacja (Biblia)   _l_: Luźne notatki
-  _b_: Codziennik           _t_: Terminal (vterm)
-  _a_: Rachunek Sumienia    _g_: Magit (Git)
-  _c_: Capture (Zdrowie/WWW) _q_: Wyjdź
+  _a_: Rachunek Sumienia    _t_: Terminal (vterm)
+  _r_: Różaniec             _g_: Magit (Git)
+  _b_: Codziennik           _c_: Capture (Zdrowie/WWW)
+  _q_: Wyjdź
   "
   ("a" my/rachunek)
   ("m" my/medytacja-z-mapy)
+  ("r" my/rozaniec)
   ("b" my/codziennik-krawczyka)
   ("l" my/notatki-luzne)
   ("t" vterm :exit t)
@@ -240,6 +274,7 @@
 
 ;; JEDYNY skrót do Mapy, który musisz pamiętać
 (global-set-key (kbd "C-c m") #'hydra-mapa/body)
+
 
 ;; Szybkie skakanie góra/dół
 (global-set-key (kbd "M-[") 'beginning-of-buffer)

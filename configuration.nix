@@ -221,6 +221,7 @@ in
   users.users.michal = {
     isNormalUser = true;
     description = "michal";
+    linger = true; # Ta linijka ratuje Emacsa przed zabiciem podczas przelogowania
     extraGroups = [
       "networkmanager"
       "wheel"
@@ -436,6 +437,25 @@ in
     ];
   };
 
+  ###############################################
+  ## PODGLĄD AKTUALIZACJI (NVD + NIX-DIFF)
+  ###############################################
+
+  system.activationScripts.diff = {
+    supportsDryActivation = true;
+    text = ''
+      if [ -e /run/current-system ]; then
+        export PATH="${pkgs.nix}/bin:${pkgs.nvd}/bin:${pkgs.nix-diff}/bin:$PATH"
+        
+        echo "=== 📦 ZMIANY W WERSJACH PAKIETÓW (NVD) ==="
+        nvd diff /run/current-system "$systemConfig"
+        
+        echo "=== 🛠️ ZMIANY W CONFIZACH SYSTEMOWYCH ==="
+        nix-diff /run/current-system "$systemConfig" --color always | tail -n 20
+      fi
+    '';
+  };
+  
   # ==========================================================
   # SWAP + HIBERNATE (NVIDIA SAFE MODE)
   # ==========================================================

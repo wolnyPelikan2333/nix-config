@@ -386,3 +386,10 @@
 
 (with-eval-after-load 'vterm
   (define-key vterm-copy-mode-map (kbd "RET") #'my/vterm-open-file-with-path))
+(defun my/find-file-as-root ()
+  "Otwiera plik z uprawnieniami roota przy użyciu TRAMP."
+  (interactive)
+  (let ((default-directory "/sudo:root@localhost:/"))
+    (call-interactively 'find-file)))
+
+(global-set-key (kbd "C-c r") #'my/find-file-as-root)

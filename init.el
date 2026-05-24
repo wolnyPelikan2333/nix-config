@@ -234,8 +234,13 @@
          (file+headline "~/mapa/zdrowie.org" "Pomiary glukozy")
          "| %U | %^{Moment|Na czczo|Przed posiłkiem|2h po posiłku} | %^{Wynik} | %^{Uwagi} |")
         ("p" "Protokół" entry (file+headline "~/mapa/inbox.org" "Linki z sieci")
-         "* %a\n\n  %i\n\n  Dodano: %U" :immediate-finish t)))
-; ==========================================
+         "* %a\n\n  %i\n\n  Dodano: %U" :immediate-finish t)
+        ("m" "Mapa - Notatka z pliku" entry 
+         (file+headline "~/mapa/notes.org" "Zasysacz")
+         "* %?\n  Zrobione z pliku: %F\n  \n  #+BEGIN_QUOTE\n  %i\n  #+END_QUOTE"
+         :immediate-finish t)))
+
+;; ==========================================
 ;; 5. GLOBALNE SKRÓTY (NAPRAWIONE)
 ;; ==========================================
 
@@ -275,7 +280,6 @@
 ;; JEDYNY skrót do Mapy, który musisz pamiętać
 (global-set-key (kbd "C-c m") #'hydra-mapa/body)
 
-
 ;; Szybkie skakanie góra/dół
 (global-set-key (kbd "M-[") 'beginning-of-buffer)
 (global-set-key (kbd "M-]") 'end-of-buffer)
@@ -283,6 +287,7 @@
 ;; Jeśli chcesz mieć bezpośrednie skróty (poza menu), użyj prefiksu C-c C-
 (global-set-key (kbd "C-c C-b") #'my/codziennik-krawczyka)
 (global-set-key (kbd "C-c C-l") #'my/notatki-luzne)
+
 ;; ==========================================
 ;; 6. ORG-ROAM (Drugi Mózg)
 ;; ==========================================
@@ -295,6 +300,16 @@
   :config
   (org-roam-db-autosync-mode))
 
+(setq org-roam-capture-templates
+      '(("d" "domyślna notatka" unique
+         (file "templates/default.org")
+         "#+title: ${title}\n" :uname "default")
+        ("z" "Zettelkasten - Zasysacz fragmentu" plain
+         "%?"
+         :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                            "#+title: ${title}\n#+filetags: :zasysacz:\n\nŹródło: [[file:%F][Link do pliku X]]\n\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE")
+         :immediate-finish t)))
+
 ;; ==========================================
 ;; 7. POCZTA (mu4e) - Safe Load
 ;; ==========================================
@@ -304,47 +319,29 @@
         mu4e-update-interval 300))
 
 (provide 'init)
-;;; init.el ends here
+
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(dashboard diredfl dirvish doom-themes magit nix-mode nov org-roam
-	       pdf-tools projectile treemacs-icons-dired vterm)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+               pdf-tools projectile treemacs-icons-dired vterm)))
+(custom-set-faces)
 
 (use-package gptel
   :ensure nil
   :config
-  ;; Nowoczesna konfiguracja Ollamy dla nowej wersji gptel
   (setq gptel-backend
         (gptel-make-ollama "Ollama"
           :host "localhost:11434"
           :models '("llama3:latest")))
-  
   (setq gptel-model "llama3:latest"))
 
 ;; --- SKRÓTY KLAWISZOWE DLA GPTEL W ORG-MODE ---
-
 (with-eval-after-load 'org
-  ;; 1. Otwórz dedykowany bufor czatu gptel
   (define-key org-mode-map (kbd "C-c g g") 'gptel)
-
-  ;; 2. Wyślij zaznaczony tekst / zapytaj wewnątrz pliku .org (In-place)
   (define-key org-mode-map (kbd "C-c g s") 'gptel-send)
-
-  ;; 3. Otwórz menu gptel (ustawienia, zmiana modelu, prompty)
   (define-key org-mode-map (kbd "C-c g m") 'gptel-menu)
-
-  ;; 4. Dodaj aktywny region jako kontekst
   (define-key org-mode-map (kbd "C-c g c") 'gptel-add))
+
 ;; ==========================================
 ;; INTERAKTYWNY RENTGEN (KLIKALNE BŁĘDY NIX)
 ;; ==========================================
@@ -361,17 +358,13 @@
   (let ((file (ffap-file-at-point)))
     (if file
         (progn
-          (vterm-copy-mode -1) ; Wyłącz tryb kopiowania przed otwarciem
+          (vterm-copy-mode -1)
           (find-file file))
       (message "Nie znaleziono ścieżki pliku pod kursorem."))))
 
-;; Podpięcie pod mapę trybu kopiowania w vtermie
 (with-eval-after-load 'vterm
   (define-key vterm-copy-mode-map (kbd "RET") #'my/vterm-open-current-file)
-  (define-key vterm-copy-mode-map (kbd "o") #'my/vterm-open-current-file))
-
-;; Włączenie obsługi klikalnych linków (OSC 8) w vtermie
-(with-eval-after-load 'vterm
+  (define-key vterm-copy-mode-map (kbd "o") #'my/vterm-open-current-file)
   (add-hook 'vterm-mode-hook #'goto-address-mode))
 
 (defun my/vterm-open-file-with-path ()
@@ -380,16 +373,39 @@
   (let ((filename (thing-at-point 'filename t)))
     (if filename
         (let ((full-path (expand-file-name filename vterm-tramp-default-directory)))
-          (vterm-copy-mode -1) ; Wyjdź automatycznie z trybu kopiowania
+          (vterm-copy-mode -1)
           (find-file full-path))
       (message "Nie znaleziono nazwy pliku pod kursorem."))))
 
 (with-eval-after-load 'vterm
   (define-key vterm-copy-mode-map (kbd "RET") #'my/vterm-open-file-with-path))
-(defun my/find-file-as-root ()
-  "Otwiera plik z uprawnieniami roota przy użyciu TRAMP."
-  (interactive)
-  (let ((default-directory "/sudo:root@localhost:/"))
-    (call-interactively 'find-file)))
 
-(global-set-key (kbd "C-c r") #'my/find-file-as-root)
+;; ==========================================
+;; TWOJA BAZA WIEDZY NIX (NA SAMYM DOLE)
+;; ==========================================
+
+(defun moja-baza-nix ()
+  "Szybkie otwarcie pliku z podstawami języka Nix."
+  (interactive)
+  (find-file "~/lab/nixos-learning/nix_podstawy.org"))
+
+;; Definiujemy skróty jako uniwersalne (globalne)
+(global-set-key (kbd "C-c n f") 'org-roam-node-find)
+(global-set-key (kbd "C-c n i") 'org-roam-node-insert)
+(global-set-key (kbd "C-c n l") 'org-roam-buffer-toggle)
+
+;; Zabezpieczenie: Wymuszamy dopisanie 'b' do mapy org-roam, 
+;; żeby żaden proces jej nie wyczyścił przy starcie
+(with-eval-after-load 'org-roam
+  (define-key org-roam-mode-map (kbd "f") 'org-roam-node-find)
+  (define-key org-roam-mode-map (kbd "i") 'org-roam-node-insert)
+  (define-key org-roam-mode-map (kbd "l") 'org-roam-buffer-toggle)
+  (define-key org-roam-mode-map (kbd "b") 'moja-baza-nix))
+;; Skróty wewnątrz org-roam
+(with-eval-after-load 'org-roam
+  (define-key org-roam-mode-map (kbd "C-c n f") 'org-roam-node-find)
+  (define-key org-roam-mode-map (kbd "C-c n i") 'org-roam-node-insert)
+  (define-key org-roam-mode-map (kbd "C-c n l") 'org-roam-buffer-toggle)
+  (define-key org-roam-mode-map (kbd "C-c n b") 'moja-baza-nix))
+
+;;; init.el ends here

@@ -118,6 +118,7 @@
       alias okbuild="test -f /etc/nixos/OK_TO_BUILD && echo OK || echo NIE_BUDUJ"
       alias nss="nix-rentgen"
       alias hst="nix-historia" # 🌟 NOWY ALIAS DO HISTORII
+      alias usp="systemctl suspend" # 💤 SZYBKIE UŚPIENIE SYSTEMU
 
       # LSD — nowoczesne zamienniki ls
       alias ls='lsd'

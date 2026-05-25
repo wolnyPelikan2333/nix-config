@@ -368,16 +368,10 @@ in
     package = myEmacs;
   };
 
-  # Włączenie Hyprlanda wraz z konfiguracją skrótów
+  # Włączenie Hyprlanda
   programs.hyprland = {
     enable = true;
     xwayland.enable = true;
-    settings = {
-      bind = [
-        # Skrót: SUPER (klawisz Windows) + Escape uruchamia systemctl suspend
-        "SUPER, Escape, exec, systemctl suspend"
-      ];
-    };
   };
 
   ###############################################

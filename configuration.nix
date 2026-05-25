@@ -296,7 +296,8 @@ in
     qutebrowser
     w3m
     lazygit
-    bash-completion    xclip
+    bash-completion
+    xclip
     lm_sensors
     btop
     broot

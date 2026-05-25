@@ -7,14 +7,14 @@
   imports = [
     ../modules/wezterm.nix
     ../modules/zsh.nix
-    ../modules/my-aliases.nix
+   
 
     ./zsh/core.nix
     ./zsh/vi-mode.nix
     #./zsh/vim-indicator.nix
     #./zsh/prompt.nix
   ];
-  my.aliases.enable = true;
+ 
 
   home.username = "michal";
   home.homeDirectory = "/home/michal";

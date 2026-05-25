@@ -44,8 +44,6 @@
     jetbrains-mono
     isync
     pass
-    gnupg
-    pinentry-curses
     aerc
     thunderbird
     superfile
@@ -67,8 +65,22 @@
       };
     };
   };
- 
-  
+
+  # Włączenie i konfiguracja GPG
+  programs.gpg = {
+    enable = true;
+  };
+
+  # Uruchomienie agenta GPG jako usługi w tle
+  services.gpg-agent = {
+    enable = true;
+    # Używamy pinentry-curses, aby okienko wpisywania hasła pojawiało się bezpośrednio w terminalu
+    pinentryPackage = pkgs.pinentry-curses;
+    
+    # Opcjonalnie: czas pamiętania hasła (np. 2 godziny, żeby nie wpisywać co chwilę)
+    defaultCacheTtl = 7200;
+    maxCacheTtl = 86400;
+  };
   
   home.stateVersion = "25.05";
 }

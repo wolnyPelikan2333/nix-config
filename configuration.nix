@@ -143,8 +143,12 @@ in
   services.xserver.xkb = {
     layout = "pl";
     variant = "";
+    options = "lv3:menu_switch"; # <- Ta linijka zamieni klawisz Menu w prawy Alt
   };
 
+ # Zamiast useXkbConfig, ustawiamy czysty string:
+  console.keyMap = "pl2";
+  
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
     QT_QPA_PLATFORM = "wayland;xcb";
@@ -153,7 +157,7 @@ in
     PATH = [ "$HOME/.config/emacs/bin" ];
   };
 
-  console.keyMap = "pl2";
+  
 
   ###############################################
   ## NVIDIA
@@ -261,13 +265,8 @@ in
         doInstallCheck = false;
       });
     })
-    # Overlay 2: Emacs z Native Compilation
-    (import (builtins.fetchTarball {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-     sha256 = "0f5c8srk6gq31zdd24lzw8qv79bmdlaw27rpfyg5jix61fzz1zcj";
-    }))
   ];
-
+  
   environment.shellInit = ''
     export PATH="$PATH:/etc/nixos/my-scripts"
   '';
@@ -276,7 +275,6 @@ in
     kdePackages.okular
     calibre
     wget
-    firefox
     google-chrome
     git
     nh
@@ -361,7 +359,7 @@ in
 
   environment.etc."chromium-flags.conf".text = ''
     --use-gl=desktop
-  '';
+   '';
 
   # Włączenie serwera Emacsa jako usługi użytkownika
   services.emacs = {
@@ -455,7 +453,7 @@ in
         echo "=== 🛠️ ZMIANY W CONFIZACH SYSTEMOWYCH ==="
         nix-diff /run/current-system "$systemConfig" --color always | tail -n 20
       fi
-    '';
+     '';
   };
   
   # ==========================================================
@@ -524,7 +522,29 @@ in
     package = pkgs.ollama-cuda; # To zastępuje starą linijkę z 'acceleration'
   };
 
-  
+
+  ###############################################
+  ## MINECRAFT SERVER (🌟 NOWOŚĆ NA KOŃCU PLIKU)
+  ###############################################
+
+  services.minecraft-server = {
+    enable = true;
+    eula = true; 
+    openFirewall = true;
+
+    package = pkgs.minecraft-server;
+    
+    declarative = true;
+    serverProperties = {
+      server-port = 25565;
+      gamemode = "survival";
+      difficulty = "normal";
+      motd = "Serwer u Michala i Corki!";
+      max-players = 5;
+      white-list = false;
+    };
+  };
+
   ###############################################
   ## STATE
   ###############################################

@@ -1,4 +1,5 @@
 { config, pkgs, lib, ... }: {
+
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -8,7 +9,7 @@
     dotDir = "${config.xdg.configHome}/zsh";
     defaultKeymap = "emacs";
 
-    # 1. Przeniesione zmienne sesyjne bezpośrednio do modułu
+    # 1. Zmienne sesyjne wewnątrz modułu Zsh
     sessionVariables = {
       MPC_HOST = "127.0.0.1";
       MPC_PORT = "6600";
@@ -17,6 +18,7 @@
       VISUAL = "emacs";
     };
 
+    # 2. Konfiguracja historii powłoki
     history = {
       path = "$HOME/.config/zsh/.zsh_history";
       size = 100000;
@@ -26,8 +28,7 @@
       extended = true;
     };
 
-    # 2. Wszystkie aliasy przeniesione do oficjalnej struktury Home-Managera!
-    # Nix teraz o nich wie, pilnuje ich i optymalizuje.
+    # 3. Wszystkie Twoje oficjalne aliasy systemowe
     shellAliases = {
       # Podstawowe
       w = "w3m";
@@ -42,7 +43,7 @@
       okbuild = "test -f /etc/nixos/OK_TO_BUILD && echo OK || echo NIE_BUDUJ";
       nss = "nix-rentgen";
       hst = "nix-historia";
-      usp = "systemctl suspend"; # Nasz nowy alias!
+      usp = "systemctl suspend";
 
       # LSD
       ls = "lsd";
@@ -73,8 +74,11 @@
       grh = "git reset --hard";
     };
 
-    # 3. W initContent zostawiamy TYLKO to, co absolutnie musi być skryptem powłoki
-    initContent = ''
+    # 4. Skrypty startowe powłoki (w tym naprawa promptu i git_repo_hint)
+    initExtra = ''
+      # Naprawa promptu $(git_repo_hint)
+      setopt PROMPT_SUBST
+
       autoload -Uz colors
       colors
 
@@ -89,7 +93,7 @@
         exit
       }
 
-      # PROMPT
+      # PROMPT i funkcja pomocnicza Git
       git_repo_hint() {
         git rev-parse --is-inside-work-tree &>/dev/null || return
         local hint=""

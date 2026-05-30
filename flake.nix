@@ -10,7 +10,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    # Emacs overlay podążający za Twoją wersją nixpkgs
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, emacs-overlay, ... }@inputs: {
@@ -18,7 +22,7 @@
       system = "x86_64-linux";
       specialArgs = { inherit inputs; };
       modules = [
-        # Moduł dla emacs-overlay
+        # Moduł dla emacs-overlay (Wstrzykuje go automatycznie do całego systemu)
         ({ pkgs, ... }: {
           nixpkgs.overlays = [ (import emacs-overlay) ];
         })

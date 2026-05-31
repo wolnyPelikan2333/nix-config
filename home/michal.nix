@@ -47,7 +47,7 @@
     aerc
     thunderbird
     superfile
-    
+    emacsPackages.org-caldav
   ];
   programs.zellij = {
     enable = true;

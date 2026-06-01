@@ -11,6 +11,10 @@
 (add-to-list 'load-path "/run/current-system/sw/share/emacs/site-lisp")
 (add-to-list 'load-path "/run/current-system/sw/share/emacs/site-lisp/mu4e")
 
+;; Przeniesienie automatycznej konfiguracji Emacsa do pliwu, którego Nix nie blokuje
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file 'noerror)
+
 ;; ==========================================
 ;; 1. PODSTAWY I PAKIETY
 ;; ==========================================
@@ -227,6 +231,26 @@
 (use-package nix-mode :ensure t)
 
 ;; ==========================================
+;; 3a. KOKPIT DOWODZENIA (STATUSY I AGENDA)
+;; ==========================================
+
+;; Definicja statusów i automatyczne logowanie czasu
+(setq org-todo-keywords
+      '((sequence "DO ZROBIENIA(t)" "W DRODZE(w!)" "POCZEKAJ(p!)" "ZATRZYMANE(z!)" "PRZEŁOŻONE(r!)" "|" "ZROBIONE(d!)" "ANULOWANE(c!)")))
+
+;; Określenie głównego źródła plików dla kalendarza
+(setq org-agenda-files '("~/mapa/"))
+
+;; Modułowe menu zakładek dla Agendy (Kokpit)
+(setq org-agenda-custom-commands
+      '(("d" . "Moduły Dowodzenia")
+        ("dt" "Kalendarz (Agenda)" agenda "")
+        ("dd" "Zadania: W DRODZE" todo "W DRODZE")
+        ("dp" "Zadania: POCZEKAJ" todo "POCZEKAJ")
+        ("dz" "Zadania: ZATRZYMANE" todo "ZATRZYMANE")
+        ("dr" "Zadania: PRZEŁOŻONE" todo "PRZEŁOŻONE")))
+
+;; ==========================================
 ;; 4. ORG-CAPTURE (POŁĄCZONE)
 ;; ==========================================
 (setq org-capture-templates
@@ -407,5 +431,6 @@
   (define-key org-roam-mode-map (kbd "C-c n i") 'org-roam-node-insert)
   (define-key org-roam-mode-map (kbd "C-c n l") 'org-roam-buffer-toggle)
   (define-key org-roam-mode-map (kbd "C-c n b") 'moja-baza-nix))
+
 
 ;;; init.el ends here
